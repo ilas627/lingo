@@ -1,0 +1,2375 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <title>LingoSchool 🦉</title>
+    <meta name="description" content="Учи предметы в игровом формате!">
+    <meta name="theme-color" content="#58CC02">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- ВАЖНО: относительные пути для GitHub Pages -->
+    <link rel="manifest" href="./manifest.json">
+    <link rel="apple-touch-icon" href="./icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+
+    <style>
+        :root {
+            --duo-green: #58CC02;
+            --duo-green-dark: #46a302;
+            --duo-green-shadow: #58a700;
+            --duo-blue: #1CB0F6;
+            --duo-blue-dark: #1899D6;
+            --duo-purple: #CE82FF;
+            --duo-yellow: #FFC800;
+            --duo-red: #FF4B4B;
+            --duo-red-dark: #EA2B2B;
+            --duo-orange: #FF9600;
+            --duo-gray-100: #F7F7F7;
+            --duo-gray-200: #E5E5E5;
+            --duo-gray-400: #AFAFAF;
+            --duo-gray-600: #777777;
+            --duo-gray-800: #4B4B4B;
+            --bg-color: #FFFFFF;
+            --card-bg: #FFFFFF;
+            --text-color: #3C3C3C;
+            --text-secondary: #777777;
+            --border-color: #E5E5E5;
+            --shadow: 0 2px 0 0 var(--duo-gray-200);
+        }
+        [data-theme="dark"] {
+            --bg-color: #131F24;
+            --card-bg: #1B2B31;
+            --text-color: #FFFFFF;
+            --text-secondary: #A0A0A0;
+            --border-color: #37464F;
+            --duo-gray-100: #1B2B31;
+            --duo-gray-200: #37464F;
+            --shadow: 0 2px 0 0 #0F1A1E;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: 'Nunito', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 15px 100px 15px;
+            min-height: 100vh;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            user-select: none;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap');
+
+        .top-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 0; position: sticky; top: 0; z-index: 100;
+            background: var(--bg-color); border-bottom: 2px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+        .logo {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 1.4em; font-weight: 900; color: var(--duo-green);
+        }
+        .logo-mascot { font-size: 1.5em; }
+        .top-stats { display: flex; gap: 12px; align-items: center; }
+        .stat-pill {
+            display: flex; align-items: center; gap: 4px;
+            font-weight: 800; font-size: 0.95em; cursor: pointer;
+        }
+        .stat-pill.streak { color: var(--duo-orange); }
+        .stat-pill.gems { color: var(--duo-blue); }
+        .stat-pill .icon { font-size: 1.2em; }
+        .theme-toggle {
+            background: none; border: none; font-size: 1.4em; cursor: pointer;
+            padding: 5px; border-radius: 50%; transition: background 0.2s;
+        }
+        .theme-toggle:hover { background: var(--duo-gray-100); }
+
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--bg-color); border-top: 2px solid var(--border-color);
+            display: flex; justify-content: space-around; padding: 8px 0;
+            z-index: 100; max-width: 600px; margin: 0 auto;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        .nav-btn {
+            background: none; border: none; padding: 8px 12px;
+            display: flex; flex-direction: column; align-items: center; gap: 2px;
+            color: var(--duo-gray-400); cursor: pointer; font-weight: 800;
+            font-size: 0.7em; transition: all 0.2s; width: auto;
+        }
+        .nav-btn .nav-icon { font-size: 2em; }
+        .nav-btn.active { color: var(--duo-blue); }
+        .nav-btn:hover { color: var(--duo-blue); }
+
+        .duo-btn {
+            border: none; border-radius: 16px; padding: 14px 20px;
+            font-weight: 800; font-size: 0.95em; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            transition: all 0.1s; width: 100%;
+            font-family: inherit;
+        }
+        .duo-btn:active { transform: translateY(2px); }
+        .duo-btn-green {
+            background: var(--duo-green); color: white;
+            box-shadow: 0 4px 0 var(--duo-green-shadow);
+        }
+        .duo-btn-green:active { box-shadow: 0 2px 0 var(--duo-green-shadow); }
+        .duo-btn-blue {
+            background: var(--duo-blue); color: white;
+            box-shadow: 0 4px 0 var(--duo-blue-dark);
+        }
+        .duo-btn-blue:active { box-shadow: 0 2px 0 var(--duo-blue-dark); }
+        .duo-btn-white {
+            background: white; color: var(--duo-blue);
+            border: 2px solid var(--border-color);
+            box-shadow: 0 4px 0 var(--duo-gray-200);
+        }
+        .duo-btn-white:active { box-shadow: 0 2px 0 var(--duo-gray-200); }
+        .duo-btn-red {
+            background: var(--duo-red); color: white;
+            box-shadow: 0 4px 0 var(--duo-red-dark);
+        }
+        .duo-btn-red:active { box-shadow: 0 2px 0 var(--duo-red-dark); }
+        .duo-btn-ghost {
+            background: transparent; color: var(--duo-blue);
+            border: 2px solid var(--border-color);
+            box-shadow: 0 4px 0 var(--duo-gray-200);
+        }
+        .duo-btn-ghost:active { box-shadow: 0 2px 0 var(--duo-gray-200); }
+        .duo-btn-sm { padding: 10px 16px; font-size: 0.85em; }
+
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .welcome-card {
+            background: linear-gradient(135deg, var(--duo-green) 0%, #78E326 100%);
+            color: white; padding: 25px; border-radius: 20px;
+            text-align: center; margin-bottom: 20px;
+            position: relative; overflow: hidden;
+        }
+        .welcome-card h2 { font-size: 1.6em; margin-bottom: 5px; font-weight: 900; }
+        .welcome-card p { opacity: 0.95; font-size: 0.95em; font-weight: 700; }
+        .welcome-mascot {
+            font-size: 4em; position: absolute; right: 10px; top: 50%;
+            transform: translateY(-50%); animation: mascotBounce 2s infinite;
+        }
+        @keyframes mascotBounce {
+            0%, 100% { transform: translateY(-50%) rotate(-5deg); }
+            50% { transform: translateY(-60%) rotate(5deg); }
+        }
+
+        .daily-goal {
+            background: var(--card-bg); border: 2px solid var(--border-color);
+            border-radius: 16px; padding: 15px; margin-bottom: 20px;
+            display: flex; align-items: center; gap: 15px;
+        }
+        .daily-goal-icon { font-size: 2em; }
+        .daily-goal-info { flex: 1; }
+        .daily-goal-title { font-size: 0.85em; color: var(--text-secondary); margin-bottom: 5px; }
+        .daily-goal-bar {
+            height: 14px; background: var(--duo-gray-200); border-radius: 10px;
+            overflow: hidden; position: relative;
+        }
+        .daily-goal-fill {
+            height: 100%; background: var(--duo-yellow);
+            border-radius: 10px; transition: width 0.5s ease;
+            box-shadow: inset 0 -2px 0 rgba(0,0,0,0.1);
+        }
+        .daily-goal-text { font-size: 0.8em; color: var(--text-secondary); margin-top: 5px; }
+
+        .section-title {
+            font-size: 1.3em; font-weight: 900; margin: 25px 0 15px;
+            color: var(--text-color); display: flex; align-items: center; gap: 8px;
+        }
+
+        .unit-card {
+            background: var(--card-bg); border: 2px solid var(--border-color);
+            border-radius: 20px; padding: 20px; margin-bottom: 15px;
+            display: flex; align-items: center; gap: 15px; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .unit-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .unit-icon {
+            width: 60px; height: 60px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2em; flex-shrink: 0;
+        }
+        .unit-info { flex: 1; }
+        .unit-title { font-size: 1.05em; font-weight: 900; margin-bottom: 4px; }
+        .unit-desc { font-size: 0.85em; color: var(--text-secondary); font-weight: 700; }
+        .unit-arrow { font-size: 1.5em; color: var(--duo-gray-400); }
+
+        .unit-math .unit-icon { background: #DCD0FF; color: #8858FF; }
+        .unit-russian .unit-icon { background: #FFDADA; color: #FF4B4B; }
+        .unit-chemistry .unit-icon { background: #FFE4B8; color: #FF9600; }
+        .unit-physics .unit-icon { background: #B8E6FF; color: #1899D6; }
+        .unit-biology .unit-icon { background: #C8F7C8; color: #46A302; }
+        .unit-history .unit-icon { background: #FFD4B8; color: #CE6F1C; }
+        .unit-english .unit-icon { background: #FFD0E0; color: #FF8BAA; }
+        .unit-shpargalka .unit-icon { background: #D4F5C8; color: #58CC02; }
+
+        .lesson-header {
+            display: flex; align-items: center; gap: 15px;
+            margin-bottom: 25px; padding: 10px 0;
+        }
+        .close-btn {
+            background: none; border: none; font-size: 1.5em;
+            color: var(--duo-gray-400); cursor: pointer; width: auto; padding: 5px;
+        }
+        .progress-bar {
+            flex: 1; height: 16px; background: var(--duo-gray-200);
+            border-radius: 10px; overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; background: var(--duo-green);
+            border-radius: 10px; transition: width 0.4s ease;
+            box-shadow: inset 0 -2px 0 rgba(0,0,0,0.1);
+        }
+
+        .question-prompt {
+            font-size: 1.4em; font-weight: 900; margin-bottom: 20px;
+            text-align: center; color: var(--text-color);
+        }
+        .question-box {
+            background: var(--duo-gray-100); border: 2px solid var(--border-color);
+            border-radius: 16px; padding: 30px 20px; text-align: center;
+            font-size: 2.2em; font-weight: 900; margin-bottom: 20px;
+            color: var(--text-color);
+        }
+        .question-hint {
+            background: #FFF4D4; border: 2px solid var(--duo-yellow);
+            border-radius: 12px; padding: 10px 15px; margin-bottom: 20px;
+            color: #8B6914; font-size: 0.9em; text-align: center;
+        }
+
+        .options-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0;
+        }
+        .option-btn {
+            background: white; border: 2px solid var(--border-color);
+            border-bottom: 4px solid var(--duo-gray-200);
+            border-radius: 14px; padding: 18px 12px; cursor: pointer;
+            font-weight: 800; font-size: 0.95em; transition: all 0.1s;
+            color: var(--text-color); font-family: inherit;
+        }
+        .option-btn:hover:not(:disabled) { background: var(--duo-gray-100); }
+        .option-btn:active:not(:disabled) {
+            border-bottom-width: 2px; transform: translateY(2px);
+        }
+        .option-btn.correct-opt {
+            background: #D7FFB8 !important; border-color: var(--duo-green) !important;
+            color: var(--duo-green-dark) !important;
+        }
+        .option-btn.wrong-opt {
+            background: #FFDFE0 !important; border-color: var(--duo-red) !important;
+            color: var(--duo-red-dark) !important;
+        }
+
+        .answer-input {
+            width: 100%; padding: 16px; border: 2px solid var(--border-color);
+            border-bottom: 4px solid var(--duo-gray-200); border-radius: 14px;
+            font-size: 1.2em; font-weight: 700; text-align: center;
+            background: white; color: var(--text-color); font-family: inherit;
+        }
+        .answer-input:focus { outline: none; border-color: var(--duo-blue); }
+
+        .feedback-bar {
+            position: fixed; bottom: 80px; left: 0; right: 0;
+            padding: 20px; max-width: 600px; margin: 0 auto;
+            display: none; z-index: 50;
+        }
+        .feedback-bar.show { display: block; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .feedback-bar.correct { background: #D7FFB8; }
+        .feedback-bar.incorrect { background: #FFDFE0; }
+        .feedback-content {
+            display: flex; align-items: center; gap: 15px;
+        }
+        .feedback-icon { font-size: 2em; }
+        .feedback-text { flex: 1; }
+        .feedback-title { font-size: 1.1em; font-weight: 900; margin-bottom: 3px; }
+        .feedback-bar.correct .feedback-title { color: var(--duo-green-dark); }
+        .feedback-bar.incorrect .feedback-title { color: var(--duo-red-dark); }
+        .feedback-detail { font-size: 0.85em; font-weight: 700; }
+        .feedback-bar.correct .feedback-detail { color: #46A302; }
+        .feedback-bar.incorrect .feedback-detail { color: #EA2B2B; }
+
+        .mascot-message {
+            background: var(--card-bg); border: 2px solid var(--border-color);
+            border-radius: 20px; padding: 15px; margin: 15px 0;
+            display: flex; align-items: center; gap: 12px;
+            position: relative;
+        }
+        .mascot-message::before {
+            content: ''; position: absolute; left: 30px; top: -8px;
+            width: 16px; height: 16px; background: var(--card-bg);
+            border-left: 2px solid var(--border-color);
+            border-top: 2px solid var(--border-color);
+            transform: rotate(45deg);
+        }
+        .mascot-avatar {
+            font-size: 2.5em; flex-shrink: 0;
+            animation: mascotIdle 3s infinite;
+        }
+        @keyframes mascotIdle {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+        .mascot-text {
+            font-size: 0.95em; font-weight: 700; color: var(--text-color);
+            line-height: 1.4;
+        }
+
+        .formula-card {
+            background: var(--card-bg); border: 2px solid var(--border-color);
+            border-left: 6px solid var(--duo-green);
+            border-radius: 12px; padding: 15px; margin-bottom: 12px;
+        }
+        .formula-subject {
+            font-size: 0.75em; color: var(--duo-green); text-transform: uppercase;
+            letter-spacing: 1px; font-weight: 900;
+        }
+        .formula-title { font-size: 1.05em; font-weight: 900; margin: 5px 0; }
+        .formula-text {
+            background: var(--duo-gray-100); padding: 10px; border-radius: 8px;
+            font-family: 'Courier New', monospace; font-size: 1em; margin: 8px 0;
+            white-space: pre-wrap; word-break: break-word;
+        }
+        .card-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+            margin: 15px 0;
+        }
+        .stat-box {
+            background: var(--card-bg); border: 2px solid var(--border-color);
+            border-radius: 14px; padding: 15px; text-align: center;
+        }
+        .stat-value { font-size: 1.8em; font-weight: 900; color: var(--duo-green); }
+        .stat-label { font-size: 0.8em; color: var(--text-secondary); margin-top: 3px; }
+
+        .shop-section-title {
+            font-size: 1.1em; font-weight: 900; margin: 20px 0 12px;
+            color: var(--text-color); display: flex; align-items: center; gap: 8px;
+        }
+        .shop-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 10px;
+        }
+        .shop-item {
+            background: var(--card-bg); border: 2px solid var(--border-color);
+            border-radius: 16px; padding: 15px 10px; text-align: center;
+            transition: all 0.2s;
+        }
+        .shop-item.owned { border-color: var(--duo-green); background: #F0FFE0; }
+        .shop-item.selected { border-color: var(--duo-blue); background: #E0F4FF; }
+        .shop-item-icon { font-size: 2.5em; margin-bottom: 6px; }
+        .shop-item-name { font-size: 0.85em; font-weight: 800; margin-bottom: 6px; }
+        .shop-item-price {
+            display: inline-block; padding: 4px 10px;
+            background: var(--duo-blue); color: white;
+            border-radius: 10px; font-size: 0.8em; font-weight: 800;
+        }
+        .shop-item.owned .shop-item-price { background: var(--duo-green); }
+        .rarity-legendary { filter: drop-shadow(0 0 6px #FFC800); }
+
+        .games-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+        }
+        .game-card {
+            background: var(--card-bg); border: 2px solid var(--border-color);
+            border-radius: 16px; padding: 15px; text-align: center;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .game-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .game-card-icon { font-size: 2.5em; margin-bottom: 6px; }
+        .game-card-title { font-size: 1em; font-weight: 900; color: var(--duo-green); margin-bottom: 3px; }
+        .game-card-desc { font-size: 0.8em; color: var(--text-secondary); }
+
+        .game-area {
+            background: var(--card-bg); border: 2px solid var(--border-color);
+            padding: 20px; border-radius: 20px; margin-bottom: 20px;
+        }
+        .game-title {
+            font-size: 1.3em; font-weight: 900; color: var(--duo-green);
+            text-align: center; margin-bottom: 15px;
+        }
+        .game-info {
+            display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .game-info-item {
+            background: var(--duo-gray-100); padding: 6px 12px;
+            border-radius: 12px; font-weight: 800; font-size: 0.85em;
+        }
+
+        .ttt-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+            max-width: 280px; margin: 15px auto;
+        }
+        .ttt-cell {
+            aspect-ratio: 1; background: var(--duo-gray-100);
+            border: 2px solid var(--border-color); border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.2em; font-weight: 900; cursor: pointer;
+        }
+        .ttt-cell.x { color: var(--duo-red); }
+        .ttt-cell.o { color: var(--duo-blue); }
+
+        .memory-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+            margin: 15px 0;
+        }
+        .memory-card {
+            aspect-ratio: 1; background: var(--duo-blue); color: white;
+            border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.8em; cursor: pointer; transition: all 0.3s;
+        }
+        .memory-card.flipped { background: var(--card-bg); border: 3px solid var(--duo-blue); }
+        .memory-card.matched { background: var(--duo-green); color: white; }
+
+        .scramble-word {
+            font-size: 2em; letter-spacing: 5px; text-align: center;
+            margin: 15px 0; font-weight: 900; color: var(--duo-purple);
+        }
+
+        .rps-buttons {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0;
+        }
+        .rps-btn {
+            background: white; border: 2px solid var(--border-color);
+            border-bottom: 4px solid var(--duo-gray-200);
+            padding: 15px; font-size: 2em; border-radius: 14px;
+            cursor: pointer; transition: all 0.1s;
+        }
+        .rps-btn:active { border-bottom-width: 2px; transform: translateY(2px); }
+        .rps-result {
+            text-align: center; margin-top: 15px; padding: 15px;
+            background: var(--duo-gray-100); border-radius: 12px; font-weight: 800;
+        }
+
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6); z-index: 1000;
+            justify-content: center; align-items: center; padding: 15px;
+        }
+        .modal-overlay.active { display: flex; animation: fadeIn 0.3s ease; }
+        .modal {
+            background: var(--bg-color); border-radius: 20px; padding: 25px;
+            max-width: 450px; width: 100%; max-height: 90vh; overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-header h2 { font-size: 1.4em; font-weight: 900; }
+        .modal-close {
+            background: var(--duo-gray-100); border: none; width: 35px; height: 35px;
+            border-radius: 50%; font-size: 1.2em; cursor: pointer; color: var(--text-color);
+            font-weight: 900;
+        }
+
+        .profile-avatar-big { font-size: 4em; text-align: center; margin-bottom: 10px; }
+        .profile-name { font-size: 1.5em; text-align: center; font-weight: 900; margin-bottom: 5px; }
+        .profile-level { text-align: center; color: var(--duo-green); margin-bottom: 15px; font-weight: 800; }
+        .profile-xp {
+            text-align: center; font-size: 1.2em; font-weight: 900;
+            background: linear-gradient(135deg, var(--duo-blue) 0%, #4FC3F7 100%);
+            color: white; padding: 12px; border-radius: 12px; margin-bottom: 15px;
+        }
+
+        .achievements-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(85px, 1fr));
+            gap: 8px; margin-bottom: 15px;
+        }
+        .achievement {
+            background: var(--duo-gray-100); padding: 10px 6px; border-radius: 12px;
+            text-align: center; border: 2px solid var(--border-color);
+        }
+        .achievement.unlocked {
+            background: linear-gradient(135deg, #FFE87C 0%, #FFC800 100%);
+            border-color: var(--duo-yellow);
+        }
+        .achievement.locked { opacity: 0.4; filter: grayscale(1); }
+        .achievement-icon { font-size: 1.6em; margin-bottom: 3px; }
+        .achievement-name { font-size: 0.7em; font-weight: 800; }
+
+        .avatar-picker {
+            display: grid; grid-template-columns: repeat(5, 1fr);
+            gap: 6px; margin-bottom: 15px;
+        }
+        .avatar-option {
+            font-size: 1.8em; padding: 8px; text-align: center;
+            background: var(--duo-gray-100); border: 2px solid transparent;
+            border-radius: 12px; cursor: pointer;
+        }
+        .avatar-option.selected { border-color: var(--duo-blue); background: #E0F4FF; }
+
+        .coin-popup {
+            position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+            background: var(--duo-green); color: white;
+            padding: 12px 24px; border-radius: 16px;
+            font-weight: 900; font-size: 1em; z-index: 2000;
+            box-shadow: 0 4px 0 var(--duo-green-shadow);
+            animation: popupBounce 0.5s ease, fadeOut 0.5s ease 2s forwards;
+        }
+        @keyframes popupBounce {
+            0% { transform: translateX(-50%) translateY(-20px) scale(0.8); opacity: 0; }
+            50% { transform: translateX(-50%) translateY(5px) scale(1.05); }
+            100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+        }
+        @keyframes fadeOut { to { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
+
+        .error-msg { color: var(--duo-red); font-weight: 800; margin-bottom: 10px; display: none; text-align: center; }
+        .success-msg { color: var(--duo-green); font-weight: 800; margin-bottom: 10px; display: none; text-align: center; }
+
+        .empty-state { text-align: center; padding: 30px 20px; color: var(--text-secondary); }
+        .empty-state-icon { font-size: 3em; margin-bottom: 10px; }
+
+        @media (max-width: 600px) {
+            .options-grid { grid-template-columns: 1fr; }
+            .question-box { font-size: 1.6em; padding: 20px 15px; }
+            .welcome-mascot { font-size: 3em; right: 5px; }
+            .welcome-card h2 { font-size: 1.3em; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <div class="logo">
+            <span class="logo-mascot">🦉</span>
+            <span>LingoSchool</span>
+        </div>
+        <div class="top-stats">
+            <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему">🌙</button>
+            <div class="stat-pill streak" title="Серия дней"><span class="icon">🔥</span><span id="topStreak">0</span></div>
+            <div class="stat-pill gems" title="Кристаллы"><span class="icon">💎</span><span id="topGems">0</span></div>
+        </div>
+    </div>
+
+    <div id="home" class="tab-content active">
+        <div class="welcome-card">
+            <div class="welcome-mascot">🦉</div>
+            <h2 id="homeGreeting">Привет!</h2>
+            <p>Готов покорять новые вершины?</p>
+        </div>
+
+        <div class="daily-goal">
+            <div class="daily-goal-icon">🎯</div>
+            <div class="daily-goal-info">
+                <div class="daily-goal-title">ЕЖЕДНЕВНАЯ ЦЕЛЬ</div>
+                <div class="daily-goal-bar">
+                    <div class="daily-goal-fill" id="dailyGoalFill" style="width: 0%"></div>
+                </div>
+                <div class="daily-goal-text"><span id="dailyGoalProgress">0</span> / <span id="dailyGoalTarget">10</span> XP</div>
+            </div>
+        </div>
+
+        <div class="mascot-message">
+            <div class="mascot-avatar">🦉</div>
+            <div class="mascot-text" id="mascotText">Выбери предмет и начни учиться! Я буду рядом и помогу 💪</div>
+        </div>
+
+        <div class="section-title">📚 Предметы</div>
+
+        <div class="unit-card unit-math" onclick="switchTab('math')">
+            <div class="unit-icon">🧮</div>
+            <div class="unit-info">
+                <div class="unit-title">Математика</div>
+                <div class="unit-desc">Арифметика, степени, примеры</div>
+            </div>
+            <div class="unit-arrow">›</div>
+        </div>
+
+        <div class="unit-card unit-russian" onclick="switchTab('russian')">
+            <div class="unit-icon">✍️</div>
+            <div class="unit-info">
+                <div class="unit-title">Русский язык</div>
+                <div class="unit-desc">Орфография и правила</div>
+            </div>
+            <div class="unit-arrow">›</div>
+        </div>
+
+        <div class="unit-card unit-chemistry" onclick="switchTab('chemistry')">
+            <div class="unit-icon">⚗️</div>
+            <div class="unit-info">
+                <div class="unit-title">Химия</div>
+                <div class="unit-desc">Таблица Менделеева</div>
+            </div>
+            <div class="unit-arrow">›</div>
+        </div>
+
+        <div class="unit-card unit-physics" onclick="switchTab('physics')">
+            <div class="unit-icon">⚡</div>
+            <div class="unit-info">
+                <div class="unit-title">Физика</div>
+                <div class="unit-desc">Формулы и законы</div>
+            </div>
+            <div class="unit-arrow">›</div>
+        </div>
+
+        <div class="unit-card unit-biology" onclick="switchTab('biology')">
+            <div class="unit-icon">🧬</div>
+            <div class="unit-info">
+                <div class="unit-title">Биология</div>
+                <div class="unit-desc">Природа и человек</div>
+            </div>
+            <div class="unit-arrow">›</div>
+        </div>
+
+        <div class="unit-card unit-history" onclick="switchTab('history')">
+            <div class="unit-icon">🏛️</div>
+            <div class="unit-info">
+                <div class="unit-title">История</div>
+                <div class="unit-desc">Даты и события</div>
+            </div>
+            <div class="unit-arrow">›</div>
+        </div>
+
+        <div class="unit-card unit-english" onclick="switchTab('english')">
+            <div class="unit-icon">🇬🇧</div>
+            <div class="unit-info">
+                <div class="unit-title">Английский</div>
+                <div class="unit-desc">Слова и грамматика</div>
+            </div>
+            <div class="unit-arrow">›</div>
+        </div>
+
+        <div class="unit-card unit-shpargalka" onclick="switchTab('shpargalka')">
+            <div class="unit-icon">📝</div>
+            <div class="unit-info">
+                <div class="unit-title">Моя шпаргалка</div>
+                <div class="unit-desc">Твои заметки и формулы</div>
+            </div>
+            <div class="unit-arrow">›</div>
+        </div>
+    </div>
+
+    <div id="shpargalka" class="tab-content">
+        <div class="lesson-header">
+            <button class="close-btn" onclick="switchTab('home')">✕</button>
+            <div style="font-weight: 900; font-size: 1.2em;">📝 Шпаргалка</div>
+        </div>
+
+        <div style="background: var(--card-bg); border: 2px solid var(--border-color); border-radius: 16px; padding: 18px; margin-bottom: 15px;">
+            <div style="font-weight: 900; margin-bottom: 10px;">➕ Новая запись</div>
+            <div id="addError" class="error-msg">Заполни все поля!</div>
+            <div id="addSuccess" class="success-msg">Сохранено!</div>
+            <input type="text" id="subject" placeholder="Предмет" class="answer-input" style="margin-bottom: 8px; font-size: 0.95em;">
+            <input type="text" id="title" placeholder="Тема" class="answer-input" style="margin-bottom: 8px; font-size: 0.95em;">
+            <textarea id="content" rows="2" placeholder="Формула или текст" class="answer-input" style="margin-bottom: 10px; font-size: 0.95em; text-align: left;"></textarea>
+            <button class="duo-btn duo-btn-green" onclick="addFormula()">СОХРАНИТЬ</button>
+        </div>
+
+        <div style="background: var(--card-bg); border: 2px solid var(--border-color); border-radius: 16px; padding: 18px; margin-bottom: 15px;">
+            <input type="text" id="search" placeholder="🔍 Поиск..." class="answer-input" style="margin: 0; font-size: 0.95em;" oninput="searchFormulas()">
+        </div>
+
+        <div style="font-weight: 900; font-size: 1.1em; margin-bottom: 10px;">📋 Мои записи</div>
+        <div id="formulasList"></div>
+    </div>
+
+    <div id="math" class="tab-content">
+        <div class="lesson-header">
+            <button class="close-btn" onclick="switchTab('home')">✕</button>
+            <div class="progress-bar"><div class="progress-fill" id="mathProgress" style="width: 0%"></div></div>
+        </div>
+
+        <div style="text-align: center; font-size: 3em; margin-bottom: 10px;">🧮</div>
+        <div class="question-prompt">Реши пример!</div>
+
+        <div style="background: var(--card-bg); border: 2px solid var(--border-color); border-radius: 16px; padding: 18px; margin-bottom: 15px;">
+            <div style="font-weight: 900; margin-bottom: 10px;">⚙️ Настройки</div>
+            <select id="difficulty" class="answer-input" style="margin-bottom: 8px; text-align: left;">
+                <option value="easy">🟢 Лёгкий (до 20)</option>
+                <option value="medium" selected>🟡 Средний (до 100)</option>
+                <option value="hard">🔴 Сложный (до 1000)</option>
+            </select>
+            <select id="operation" class="answer-input" style="margin-bottom: 12px; text-align: left;">
+                <option value="add">➕ Сложение</option>
+                <option value="subtract">➖ Вычитание</option>
+                <option value="multiply">✖️ Умножение</option>
+                <option value="divide">➗ Деление</option>
+                <option value="powers">🔢 Степени</option>
+                <option value="mixed" selected>🎲 Все действия</option>
+            </select>
+            <button class="duo-btn duo-btn-green" onclick="generateMathProblem()">НАЧАТЬ</button>
+        </div>
+
+        <div id="mathProblemSection" style="display: none;">
+            <div class="question-box" id="mathProblemText">5 + 3 = ?</div>
+            <div id="mathErrorMsg" class="error-msg">Введи число!</div>
+            <input type="number" id="mathAnswer" placeholder="Твой ответ" class="answer-input" onkeypress="if(event.key==='Enter') checkMathAnswer()">
+            <div style="margin-top: 15px;">
+                <button class="duo-btn duo-btn-green" onclick="checkMathAnswer()">ПРОВЕРИТЬ</button>
+            </div>
+            <div id="mathFeedback" class="feedback-bar"></div>
+            <button class="duo-btn duo-btn-ghost" id="mathNextBtn" onclick="generateMathProblem()" style="display: none; margin-top: 15px;">ДАЛЕЕ →</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-box"><div class="stat-value" id="mathTotalSolved">0</div><div class="stat-label">РЕШЕНО</div></div>
+            <div class="stat-box"><div class="stat-value" id="mathCorrectCount">0</div><div class="stat-label">ВЕРНО</div></div>
+            <div class="stat-box"><div class="stat-value" id="mathAccuracy">0%</div><div class="stat-label">ТОЧНОСТЬ</div></div>
+            <div class="stat-box"><div class="stat-value" id="mathStreakCount">0</div><div class="stat-label">🔥 СЕРИЯ</div></div>
+        </div>
+    </div>
+
+    <div id="russian" class="tab-content">
+        <div class="lesson-header">
+            <button class="close-btn" onclick="switchTab('home')">✕</button>
+            <div class="progress-bar"><div class="progress-fill" id="rusProgress" style="width: 0%"></div></div>
+        </div>
+
+        <div style="text-align: center; font-size: 3em; margin-bottom: 10px;">✍️</div>
+        <div class="question-prompt">Вставь пропуск!</div>
+
+        <div style="background: var(--card-bg); border: 2px solid var(--border-color); border-radius: 16px; padding: 18px; margin-bottom: 15px;">
+            <div style="font-weight: 900; margin-bottom: 10px;">⚙️ Правило</div>
+            <select id="rule" class="answer-input" style="margin-bottom: 12px; text-align: left;" onchange="updateRusPlaceholder()">
+                <option value="vowel">Безударная гласная</option>
+                <option value="consonant">Парная согласная</option>
+                <option value="dictionary">Словарные слова</option>
+                <option value="prefix">ПРИ-/ПРЕ-</option>
+                <option value="ne">НЕ с глаголами</option>
+                <option value="ending">Окончания</option>
+                <option value="alternation">Чередования</option>
+                <option value="stress">Ударения</option>
+                <option value="parts">Части речи</option>
+                <option value="all" selected>🎲 Все правила</option>
+            </select>
+            <button class="duo-btn duo-btn-green" onclick="generateRusWord()">НАЧАТЬ</button>
+        </div>
+
+        <div id="rusWordSection" style="display: none;">
+            <div class="question-box" id="rusWordText" style="font-size: 1.8em; letter-spacing: 3px;">к_рова</div>
+            <div class="question-hint" id="rusHintText"></div>
+            <div id="rusErrorMsg" class="error-msg">Ошибка ввода!</div>
+            <input type="text" id="rusLetter" placeholder="Твой ответ" class="answer-input" onkeypress="if(event.key==='Enter') checkRusLetter()">
+            <div style="margin-top: 15px;">
+                <button class="duo-btn duo-btn-green" onclick="checkRusLetter()">ПРОВЕРИТЬ</button>
+            </div>
+            <div id="rusFeedback" class="feedback-bar"></div>
+            <button class="duo-btn duo-btn-ghost" id="rusNextBtn" onclick="generateRusWord()" style="display: none; margin-top: 15px;">ДАЛЕЕ →</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-box"><div class="stat-value" id="rusTotalSolved">0</div><div class="stat-label">РЕШЕНО</div></div>
+            <div class="stat-box"><div class="stat-value" id="rusCorrectCount">0</div><div class="stat-label">ВЕРНО</div></div>
+            <div class="stat-box"><div class="stat-value" id="rusAccuracy">0%</div><div class="stat-label">ТОЧНОСТЬ</div></div>
+            <div class="stat-box"><div class="stat-value" id="rusStreakCount">0</div><div class="stat-label">🔥 СЕРИЯ</div></div>
+        </div>
+    </div>
+
+    <div id="chemistry" class="tab-content">
+        <div class="lesson-header">
+            <button class="close-btn" onclick="switchTab('home')">✕</button>
+            <div class="progress-bar"><div class="progress-fill" id="chemProgress" style="width: 0%"></div></div>
+        </div>
+
+        <div style="text-align: center; font-size: 3em; margin-bottom: 10px;">⚗️</div>
+        <div class="question-prompt">Таблица Менделеева</div>
+
+        <div style="background: var(--card-bg); border: 2px solid var(--border-color); border-radius: 16px; padding: 18px; margin-bottom: 15px;">
+            <div style="font-weight: 900; margin-bottom: 10px;">⚙️ Режим</div>
+            <select id="chemMode" class="answer-input" style="margin-bottom: 12px; text-align: left;">
+                <option value="symbol">Символ по названию</option>
+                <option value="name">Название по символу</option>
+                <option value="number">Порядковый номер</option>
+                <option value="valence">Валентность</option>
+                <option value="mass">Атомная масса</option>
+                <option value="group">Группа</option>
+            </select>
+            <button class="duo-btn duo-btn-green" onclick="generateChemQuestion()">НАЧАТЬ</button>
+        </div>
+
+        <div id="chemSection" style="display: none;">
+            <div class="question-prompt" id="chemQuestionText" style="font-size: 1.2em;">?</div>
+            <div class="options-grid" id="chemOptions"></div>
+            <div id="chemFeedback" class="feedback-bar"></div>
+            <button class="duo-btn duo-btn-ghost" id="chemNextBtn" onclick="generateChemQuestion()" style="display: none; margin-top: 15px;">ДАЛЕЕ →</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-box"><div class="stat-value" id="chemTotalSolved">0</div><div class="stat-label">РЕШЕНО</div></div>
+            <div class="stat-box"><div class="stat-value" id="chemCorrectCount">0</div><div class="stat-label">ВЕРНО</div></div>
+            <div class="stat-box"><div class="stat-value" id="chemAccuracy">0%</div><div class="stat-label">ТОЧНОСТЬ</div></div>
+            <div class="stat-box"><div class="stat-value" id="chemStreakCount">0</div><div class="stat-label">🔥 СЕРИЯ</div></div>
+        </div>
+    </div>
+
+    <div id="physics" class="tab-content">
+        <div class="lesson-header">
+            <button class="close-btn" onclick="switchTab('home')">✕</button>
+            <div class="progress-bar"><div class="progress-fill" id="physProgress" style="width: 0%"></div></div>
+        </div>
+
+        <div style="text-align: center; font-size: 3em; margin-bottom: 10px;">⚡</div>
+        <div class="question-prompt">Физика</div>
+
+        <div style="background: var(--card-bg); border: 2px solid var(--border-color); border-radius: 16px; padding: 18px; margin-bottom: 15px;">
+            <div style="font-weight: 900; margin-bottom: 10px;">⚙️ Тема</div>
+            <select id="physTopic" class="answer-input" style="margin-bottom: 12px; text-align: left;">
+                <option value="formulas">📐 Формулы</option>
+                <option value="units">📏 Единицы</option>
+                <option value="mechanics">⚙️ Механика</option>
+                <option value="energy">💪 Энергия</option>
+                <option value="thermal">🔥 Тепловые</option>
+                <option value="electricity">⚡ Электричество</option>
+                <option value="optics">💡 Оптика и звук</option>
+                <option value="all" selected>🎲 Все темы</option>
+            </select>
+            <button class="duo-btn duo-btn-green" onclick="generatePhysQuestion()">НАЧАТЬ</button>
+        </div>
+
+        <div id="physSection" style="display: none;">
+            <div class="question-prompt" id="physQuestionText" style="font-size: 1.1em;">?</div>
+            <div class="options-grid" id="physOptions"></div>
+            <div id="physFeedback" class="feedback-bar"></div>
+            <button class="duo-btn duo-btn-ghost" id="physNextBtn" onclick="generatePhysQuestion()" style="display: none; margin-top: 15px;">ДАЛЕЕ →</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-box"><div class="stat-value" id="physTotalSolved">0</div><div class="stat-label">РЕШЕНО</div></div>
+            <div class="stat-box"><div class="stat-value" id="physCorrectCount">0</div><div class="stat-label">ВЕРНО</div></div>
+            <div class="stat-box"><div class="stat-value" id="physAccuracy">0%</div><div class="stat-label">ТОЧНОСТЬ</div></div>
+            <div class="stat-box"><div class="stat-value" id="physStreakCount">0</div><div class="stat-label">🔥 СЕРИЯ</div></div>
+        </div>
+    </div>
+
+    <div id="biology" class="tab-content">
+        <div class="lesson-header">
+            <button class="close-btn" onclick="switchTab('home')">✕</button>
+            <div class="progress-bar"><div class="progress-fill" id="bioProgress" style="width: 0%"></div></div>
+        </div>
+
+        <div style="text-align: center; font-size: 3em; margin-bottom: 10px;">🧬</div>
+        <div class="question-prompt">Биология</div>
+
+        <div style="background: var(--card-bg); border: 2px solid var(--border-color); border-radius: 16px; padding: 18px; margin-bottom: 15px;">
+            <div style="font-weight: 900; margin-bottom: 10px;">⚙️ Тема</div>
+            <select id="bioTopic" class="answer-input" style="margin-bottom: 12px; text-align: left;">
+                <option value="cell">🦠 Клетка</option>
+                <option value="human">🫀 Анатомия</option>
+                <option value="botany">🌱 Ботаника</option>
+                <option value="zoology">🦁 Зоология</option>
+                <option value="ecology">🌍 Экология</option>
+                <option value="genetics">🧬 Генетика</option>
+                <option value="all" selected>🎲 Все темы</option>
+            </select>
+            <button class="duo-btn duo-btn-green" onclick="generateBioQuestion()">НАЧАТЬ</button>
+        </div>
+
+        <div id="bioSection" style="display: none;">
+            <div class="question-prompt" id="bioQuestionText" style="font-size: 1.1em;">?</div>
+            <div class="options-grid" id="bioOptions"></div>
+            <div id="bioFeedback" class="feedback-bar"></div>
+            <button class="duo-btn duo-btn-ghost" id="bioNextBtn" onclick="generateBioQuestion()" style="display: none; margin-top: 15px;">ДАЛЕЕ →</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-box"><div class="stat-value" id="bioTotalSolved">0</div><div class="stat-label">РЕШЕНО</div></div>
+            <div class="stat-box"><div class="stat-value" id="bioCorrectCount">0</div><div class="stat-label">ВЕРНО</div></div>
+            <div class="stat-box"><div class="stat-value" id="bioAccuracy">0%</div><div class="stat-label">ТОЧНОСТЬ</div></div>
+            <div class="stat-box"><div class="stat-value" id="bioStreakCount">0</div><div class="stat-label">🔥 СЕРИЯ</div></div>
+        </div>
+    </div>
+
+    <div id="history" class="tab-content">
+        <div class="lesson-header">
+            <button class="close-btn" onclick="switchTab('home')">✕</button>
+            <div class="progress-bar"><div class="progress-fill" id="histProgress" style="width: 0%"></div></div>
+        </div>
+
+        <div style="text-align: center; font-size: 3em; margin-bottom: 10px;">🏛️</div>
+        <div class="question-prompt">История</div>
+
+        <div style="background: var(--card-bg); border: 2px solid var(--border-color); border-radius: 16px; padding: 18px; margin-bottom: 15px;">
+            <div style="font-weight: 900; margin-bottom: 10px;">⚙️ Тема</div>
+            <select id="histTopic" class="answer-input" style="margin-bottom: 12px; text-align: left;">
+                <option value="dates">📅 Важные даты</option>
+                <option value="figures">👑 Личности</option>
+                <option value="ancient">🏺 Древний мир</option>
+                <option value="medieval">⚔️ Средневековье</option>
+                <option value="modern">🏭 Новое время</option>
+                <option value="xx">🚀 XX век</option>
+                <option value="all" selected>🎲 Все темы</option>
+            </select>
+            <button class="duo-btn duo-btn-green" onclick="generateHistQuestion()">НАЧАТЬ</button>
+        </div>
+
+        <div id="histSection" style="display: none;">
+            <div class="question-prompt" id="histQuestionText" style="font-size: 1.1em;">?</div>
+            <div class="options-grid" id="histOptions"></div>
+            <div id="histFeedback" class="feedback-bar"></div>
+            <button class="duo-btn duo-btn-ghost" id="histNextBtn" onclick="generateHistQuestion()" style="display: none; margin-top: 15px;">ДАЛЕЕ →</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-box"><div class="stat-value" id="histTotalSolved">0</div><div class="stat-label">РЕШЕНО</div></div>
+            <div class="stat-box"><div class="stat-value" id="histCorrectCount">0</div><div class="stat-label">ВЕРНО</div></div>
+            <div class="stat-box"><div class="stat-value" id="histAccuracy">0%</div><div class="stat-label">ТОЧНОСТЬ</div></div>
+            <div class="stat-box"><div class="stat-value" id="histStreakCount">0</div><div class="stat-label">🔥 СЕРИЯ</div></div>
+        </div>
+    </div>
+
+    <div id="english" class="tab-content">
+        <div class="lesson-header">
+            <button class="close-btn" onclick="switchTab('home')">✕</button>
+            <div class="progress-bar"><div class="progress-fill" id="engProgress" style="width: 0%"></div></div>
+        </div>
+
+        <div style="text-align: center; font-size: 3em; margin-bottom: 10px;">🇬🇧</div>
+        <div class="question-prompt">English Time!</div>
+
+        <div style="background: var(--card-bg); border: 2px solid var(--border-color); border-radius: 16px; padding: 18px; margin-bottom: 15px;">
+            <div style="font-weight: 900; margin-bottom: 10px;">⚙️ Тема</div>
+            <select id="engTopic" class="answer-input" style="margin-bottom: 12px; text-align: left;">
+                <option value="vocab">📚 Словарь</option>
+                <option value="grammar">📝 Грамматика</option>
+                <option value="irregular">🔤 Неправильные глаголы</option>
+                <option value="numbers">🔢 Числа</option>
+                <option value="colors">🌈 Цвета</option>
+                <option value="family">👨‍👩‍👧 Семья</option>
+                <option value="food">🍔 Еда</option>
+                <option value="tenses">⏰ Времена</option>
+                <option value="all" selected>🎲 Все темы</option>
+            </select>
+            <button class="duo-btn duo-btn-green" onclick="generateEngQuestion()">START</button>
+        </div>
+
+        <div id="engSection" style="display: none;">
+            <div class="question-prompt" id="engQuestionText" style="font-size: 1.1em;">?</div>
+            <div class="options-grid" id="engOptions"></div>
+            <div id="engFeedback" class="feedback-bar"></div>
+            <button class="duo-btn duo-btn-ghost" id="engNextBtn" onclick="generateEngQuestion()" style="display: none; margin-top: 15px;">NEXT →</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-box"><div class="stat-value" id="engTotalSolved">0</div><div class="stat-label">РЕШЕНО</div></div>
+            <div class="stat-box"><div class="stat-value" id="engCorrectCount">0</div><div class="stat-label">ВЕРНО</div></div>
+            <div class="stat-box"><div class="stat-value" id="engAccuracy">0%</div><div class="stat-label">ТОЧНОСТЬ</div></div>
+            <div class="stat-box"><div class="stat-value" id="engStreakCount">0</div><div class="stat-label">🔥 СЕРИЯ</div></div>
+        </div>
+    </div>
+
+    <div id="shop" class="tab-content">
+        <div class="lesson-header">
+            <button class="close-btn" onclick="switchTab('home')">✕</button>
+            <div style="font-weight: 900; font-size: 1.2em;">🛒 Магазин</div>
+        </div>
+
+        <div class="mascot-message">
+            <div class="mascot-avatar">🦉</div>
+            <div class="mascot-text">Трать кристаллы с умом! В магазине только лучшее 💎</div>
+        </div>
+
+        <div class="shop-section-title">🎭 Аватары</div>
+        <div class="shop-grid" id="avatarShop"></div>
+
+        <div class="shop-section-title">🎮 Игры</div>
+        <div class="shop-grid" id="gamesShop"></div>
+    </div>
+
+    <div id="games" class="tab-content">
+        <div class="lesson-header">
+            <button class="close-btn" onclick="switchTab('home')">✕</button>
+            <div style="font-weight: 900; font-size: 1.2em;">🎮 Игры</div>
+        </div>
+        <div id="gamesList"></div>
+        <div id="gameArea"></div>
+    </div>
+
+    <div class="modal-overlay" id="profileModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>👤 Профиль</h2>
+                <button class="modal-close" onclick="closeProfile()">✕</button>
+            </div>
+            <div class="profile-avatar-big" id="profileAvatar">🧑‍🎓</div>
+            <div class="profile-name" id="profileName">Ученик</div>
+            <div class="profile-level" id="profileLevel">🌱 Новичок</div>
+            <div class="profile-xp">💎 <span id="profileGems">0</span> кристаллов</div>
+            <div class="stats-grid">
+                <div class="stat-box"><div class="profile-stat-value" id="profileTotal" style="font-size: 1.5em; font-weight: 900; color: var(--duo-green);">0</div><div class="stat-label">РЕШЕНО</div></div>
+                <div class="stat-box"><div class="profile-stat-value" id="profileCorrect" style="font-size: 1.5em; font-weight: 900; color: var(--duo-green);">0</div><div class="stat-label">ВЕРНО</div></div>
+                <div class="stat-box"><div class="profile-stat-value" id="profileAccuracy" style="font-size: 1.5em; font-weight: 900; color: var(--duo-green);">0%</div><div class="stat-label">ТОЧНОСТЬ</div></div>
+                <div class="stat-box"><div class="profile-stat-value" id="profileBestStreak" style="font-size: 1.5em; font-weight: 900; color: var(--duo-orange);">0</div><div class="stat-label">🔥 ЛУЧШАЯ</div></div>
+            </div>
+            <div class="shop-section-title">🏆 Достижения</div>
+            <div class="achievements-grid" id="achievementsGrid"></div>
+            <button class="duo-btn duo-btn-white" onclick="openSettings()" style="margin-bottom: 8px;">⚙️ Настройки</button>
+            <button class="duo-btn duo-btn-red" onclick="resetAllData()">🗑️ Удалить всё</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>⚙️ Настройки</h2>
+                <button class="modal-close" onclick="closeSettings()">✕</button>
+            </div>
+            <label style="font-weight: 800; margin-bottom: 5px; display: block;">Твоё имя:</label>
+            <input type="text" id="settingsName" placeholder="Введи имя" class="answer-input" style="margin-bottom: 15px; text-align: left;" maxlength="20">
+            <label style="font-weight: 800; margin-bottom: 5px; display: block;">Выбери аватар:</label>
+            <div class="avatar-picker" id="avatarPicker"></div>
+            <button class="duo-btn duo-btn-green" onclick="saveSettings()" style="margin-top: 10px;">СОХРАНИТЬ</button>
+            <button class="duo-btn duo-btn-ghost" onclick="openAdminPanel()" style="margin-top: 8px; font-size: 0.8em; color: var(--duo-gray-600);">🔑 Админ-панель</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="adminModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>🔑 Админ-панель</h2>
+                <button class="modal-close" onclick="closeAdminPanel()">✕</button>
+            </div>
+            <p style="text-align: center; margin-bottom: 15px; font-weight: 700;">Введите секретное слово для получения бонуса:</p>
+            <input type="password" id="adminPassword" placeholder="Секретное слово" class="answer-input" style="margin-bottom: 15px; text-align: center;">
+            <div id="adminError" class="error-msg">Неверное слово!</div>
+            <button class="duo-btn duo-btn-green" onclick="checkAdminCode()">АКТИВИРОВАТЬ</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="welcomeModal">
+        <div class="modal">
+            <div style="text-align: center; font-size: 4em; margin-bottom: 10px;">🦉</div>
+            <div class="modal-header" style="justify-content: center;">
+                <h2>Привет! Я Дьюо!</h2>
+            </div>
+            <p style="text-align: center; margin-bottom: 15px; font-weight: 700;">Давай учиться вместе! Как тебя зовут?</p>
+            <input type="text" id="welcomeName" placeholder="Твоё имя" class="answer-input" style="margin-bottom: 15px; text-align: left;" maxlength="20">
+            <label style="font-weight: 800; margin-bottom: 5px; display: block;">Выбери аватар:</label>
+            <div class="avatar-picker" id="welcomeAvatarPicker"></div>
+            <div id="welcomeError" class="error-msg">Пожалуйста, введи имя!</div>
+            <button class="duo-btn duo-btn-green" onclick="completeWelcome()" style="margin-top: 10px;">НАЧАТЬ! 🚀</button>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <button class="nav-btn active" data-tab="home" onclick="switchTab('home')">
+            <span class="nav-icon">🏠</span><span>Учиться</span>
+        </button>
+        <button class="nav-btn" data-tab="shop" onclick="switchTab('shop')">
+            <span class="nav-icon">🛒</span><span>Магазин</span>
+        </button>
+        <button class="nav-btn" data-tab="games" onclick="switchTab('games')">
+            <span class="nav-icon">🎮</span><span>Игры</span>
+        </button>
+        <button class="nav-btn" onclick="openProfile()">
+            <span class="nav-icon">👤</span><span>Профиль</span>
+        </button>
+    </div>
+
+    <script>
+        const SECRET_WORD = "admin";
+
+        function openAdminPanel() {
+            closeSettings();
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('adminError').style.display = 'none';
+            document.getElementById('adminModal').classList.add('active');
+        }
+
+        function closeAdminPanel() {
+            document.getElementById('adminModal').classList.remove('active');
+        }
+
+        function checkAdminCode() {
+            const input = document.getElementById('adminPassword').value.trim().toLowerCase();
+            if (input === SECRET_WORD) {
+                if (!profile) {
+                    alert('Сначала создайте профиль!');
+                    closeAdminPanel();
+                    return;
+                }
+                profile.gems += 98999;
+                saveProfile();
+                updateProfileUI();
+                closeAdminPanel();
+                showPopup('💎 +98999 алмазов! (Админ-бонус)');
+                setMascotMessage('Ого! Откуда у тебя столько алмазов? 😲💎');
+            } else {
+                document.getElementById('adminError').style.display = 'block';
+                const inputEl = document.getElementById('adminPassword');
+                inputEl.style.borderColor = 'var(--duo-red)';
+                setTimeout(() => { inputEl.style.borderColor = ''; }, 500);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const adminInput = document.getElementById('adminPassword');
+            if (adminInput) {
+                adminInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') checkAdminCode();
+                });
+            }
+        });
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('lingo_theme', next);
+            document.querySelector('.theme-toggle').textContent = next === 'dark' ? '☀️' : '🌙';
+        }
+
+        const FREE_AVATARS = ['🧑‍🎓', '👩‍🎓', '🦸', '🧙', '🦊'];
+        const PAID_AVATARS = [
+            { icon: '🐱', name: 'Котик', price: 50, rarity: 'common' },
+            { icon: '🐶', name: 'Пёсик', price: 50, rarity: 'common' },
+            { icon: '🐼', name: 'Панда', price: 100, rarity: 'common' },
+            { icon: '🦄', name: 'Единорог', price: 150, rarity: 'rare' },
+            { icon: '🦁', name: 'Лев', price: 200, rarity: 'rare' },
+            { icon: '🦉', name: 'Мудрая сова', price: 300, rarity: 'epic' },
+            { icon: '🐲', name: 'Дракон', price: 500, rarity: 'legendary' },
+            { icon: '👽', name: 'Инопланетянин', price: 350, rarity: 'epic' }
+        ];
+
+        const GAMES = [
+            { id: 'guess', icon: '🎯', name: 'Угадай число', desc: 'От 1 до 100', price: 100 },
+            { id: 'rps', icon: '✂️', name: 'Камень-ножницы', desc: 'Против компа', price: 150 },
+            { id: 'memory', icon: '🧠', name: 'Память', desc: 'Найди пары', price: 300 },
+            { id: 'scramble', icon: '🔤', name: 'Анаграммы', desc: 'Собери слово', price: 200 },
+            { id: 'tictactoe', icon: '⭕', name: 'Крестики-нолики', desc: 'Классика', price: 150 }
+        ];
+
+        const ACHIEVEMENTS = [
+            { id: 'first', icon: '🌱', name: 'Первый шаг' },
+            { id: 'ten', icon: '🔟', name: 'Десяточка' },
+            { id: 'fifty', icon: '💪', name: 'Силач' },
+            { id: 'hundred', icon: '👑', name: 'Мастер' },
+            { id: 'streak5', icon: '🔥', name: 'На огне' },
+            { id: 'streak10', icon: '🌟', name: 'Звезда' },
+            { id: 'accuracy90', icon: '🎯', name: 'Снайпер' },
+            { id: 'allsubjects', icon: '🏆', name: 'Эрудит' }
+        ];
+
+        const MASCOT_MESSAGES = {
+            start: ['Давай начнём! 💪', 'Ты справишься! 🌟', 'Удачи! 🍀', 'Вперёд к победе! 🚀'],
+            correct: ['Отлично! 🎉', 'Супер! 🌟', 'Так держать! 💪', 'Молодец! 👏', 'Браво! 🏆', 'Ты гений! 🧠'],
+            wrong: ['Ничего страшного! 💪', 'Попробуй ещё! 🌟', 'В следующий раз получится! 🍀', 'Учись на ошибках! 📚'],
+            streak: ['Ты в ударе! 🔥', 'Невероятно! 🌟', 'Ты мастер! 🏆'],
+            dailyGoalDone: ['Цель выполнена! 🎯', 'Ты молодец сегодня! 🌟']
+        };
+
+        let profile = JSON.parse(localStorage.getItem('user_profile') || 'null');
+        function saveProfile() { localStorage.setItem('user_profile', JSON.stringify(profile)); }
+
+        function loadProfile() {
+            const savedTheme = localStorage.getItem('lingo_theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.querySelector('.theme-toggle').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+            if (!profile) {
+                document.getElementById('welcomeModal').classList.add('active');
+                renderAvatarPicker('welcomeAvatarPicker', null, true);
+                return;
+            }
+            if (profile.gems === undefined) profile.gems = profile.coins || 0;
+            if (profile.streakDays === undefined) profile.streakDays = 0;
+            if (profile.lastActiveDate === undefined) profile.lastActiveDate = null;
+            if (profile.dailyXP === undefined) profile.dailyXP = 0;
+            if (profile.lastDailyReset === undefined) profile.lastDailyReset = null;
+            
+            checkDailyStreak();
+            checkDailyReset();
+            updateProfileUI();
+        }
+
+        function checkDailyStreak() {
+            const today = new Date().toDateString();
+            if (profile.lastActiveDate) {
+                const last = new Date(profile.lastActiveDate);
+                const diff = Math.floor((new Date(today) - last) / (1000 * 60 * 60 * 24));
+                if (diff > 1) profile.streakDays = 0;
+            }
+        }
+
+        function markActiveToday() {
+            const today = new Date().toDateString();
+            if (profile.lastActiveDate !== today) {
+                const last = profile.lastActiveDate ? new Date(profile.lastActiveDate) : null;
+                const diff = last ? Math.floor((new Date(today) - last) / (1000 * 60 * 60 * 24)) : 999;
+                if (diff === 1) profile.streakDays++;
+                else if (diff > 1 && last) profile.streakDays = 1;
+                else if (!last) profile.streakDays = 1;
+                
+                profile.lastActiveDate = today;
+                saveProfile();
+            }
+        }
+
+        function checkDailyReset() {
+            const today = new Date().toDateString();
+            if (profile.lastDailyReset !== today) {
+                profile.dailyXP = 0;
+                profile.lastDailyReset = today;
+                saveProfile();
+            }
+        }
+
+        function updateProfileUI() {
+            document.getElementById('homeGreeting').textContent = `Привет, ${profile.name}! 👋`;
+            document.getElementById('topStreak').textContent = profile.streakDays || 0;
+            document.getElementById('topGems').textContent = profile.gems;
+            document.getElementById('profileAvatar').textContent = profile.avatar;
+            document.getElementById('profileName').textContent = profile.name;
+            document.getElementById('profileLevel').textContent = getLevel();
+            document.getElementById('profileGems').textContent = profile.gems;
+            
+            const target = 10;
+            const progress = Math.min((profile.dailyXP / target) * 100, 100);
+            document.getElementById('dailyGoalFill').style.width = progress + '%';
+            document.getElementById('dailyGoalProgress').textContent = profile.dailyXP;
+            document.getElementById('dailyGoalTarget').textContent = target;
+            
+            updateProfileStats();
+            renderAchievements();
+            renderShop();
+            renderGamesList();
+        }
+
+        function getLevel() {
+            const total = getTotalStats().total;
+            if (total === 0) return '🌱 Новичок';
+            if (total < 10) return '📗 Ученик';
+            if (total < 30) return '📘 Знаток';
+            if (total < 60) return '📙 Эксперт';
+            if (total < 100) return '📕 Мастер';
+            return '👑 Легенда';
+        }
+
+        function getTotalStats() {
+            const subjects = ['math', 'rus', 'chem', 'phys', 'bio', 'hist', 'eng'];
+            let total = 0, correct = 0, bestStreak = 0, activeSubjects = 0;
+            subjects.forEach(sub => {
+                const stats = JSON.parse(localStorage.getItem(sub + '_trainer_stats') || '{"total":0,"correct":0,"streak":0}');
+                total += stats.total;
+                correct += stats.correct;
+                if (stats.streak > bestStreak) bestStreak = stats.streak;
+                if (stats.total > 0) activeSubjects++;
+            });
+            return { total, correct, bestStreak, activeSubjects };
+        }
+
+        function updateProfileStats() {
+            const s = getTotalStats();
+            document.getElementById('profileTotal').textContent = s.total;
+            document.getElementById('profileCorrect').textContent = s.correct;
+            document.getElementById('profileAccuracy').textContent = s.total ? Math.round((s.correct/s.total)*100) + '%' : '0%';
+            document.getElementById('profileBestStreak').textContent = s.bestStreak;
+        }
+
+        function getUnlockedAchievements() {
+            const s = getTotalStats();
+            const unlocked = [];
+            if (s.total >= 1) unlocked.push('first');
+            if (s.total >= 10) unlocked.push('ten');
+            if (s.total >= 50) unlocked.push('fifty');
+            if (s.total >= 100) unlocked.push('hundred');
+            if (s.bestStreak >= 5) unlocked.push('streak5');
+            if (s.bestStreak >= 10) unlocked.push('streak10');
+            if (s.total >= 10 && (s.correct/s.total) >= 0.9) unlocked.push('accuracy90');
+            if (s.activeSubjects >= 7) unlocked.push('allsubjects');
+            return unlocked;
+        }
+
+        function renderAchievements() {
+            const unlocked = getUnlockedAchievements();
+            const grid = document.getElementById('achievementsGrid');
+            grid.innerHTML = '';
+            ACHIEVEMENTS.forEach(a => {
+                const div = document.createElement('div');
+                div.className = 'achievement ' + (unlocked.includes(a.id) ? 'unlocked' : 'locked');
+                div.innerHTML = `<div class="achievement-icon">${a.icon}</div><div class="achievement-name">${a.name}</div>`;
+                grid.appendChild(div);
+            });
+        }
+
+        function renderAvatarPicker(containerId, selected, showAll = false) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            const avatars = showAll ? FREE_AVATARS : (profile ? profile.ownedAvatars : []);
+            avatars.forEach(av => {
+                const div = document.createElement('div');
+                div.className = 'avatar-option' + (av === selected ? ' selected' : '');
+                div.textContent = av;
+                div.onclick = () => {
+                    container.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
+                    div.classList.add('selected');
+                };
+                container.appendChild(div);
+            });
+        }
+
+        function completeWelcome() {
+            const name = document.getElementById('welcomeName').value.trim();
+            if (!name) { document.getElementById('welcomeError').style.display = 'block'; return; }
+            document.getElementById('welcomeError').style.display = 'none';
+            const selected = document.querySelector('#welcomeAvatarPicker .avatar-option.selected');
+            profile = { 
+                name, avatar: selected ? selected.textContent : '🧑‍🎓',
+                gems: 50, streakDays: 1,
+                lastActiveDate: new Date().toDateString(),
+                dailyXP: 0, lastDailyReset: new Date().toDateString(),
+                ownedAvatars: [...FREE_AVATARS], ownedGames: []
+            };
+            saveProfile();
+            document.getElementById('welcomeModal').classList.remove('active');
+            showPopup('🎁 +50 💎 в подарок!');
+            updateProfileUI();
+        }
+
+        function openProfile() {
+            if (!profile) { document.getElementById('welcomeModal').classList.add('active'); return; }
+            updateProfileUI();
+            document.getElementById('profileModal').classList.add('active');
+        }
+        function closeProfile() { document.getElementById('profileModal').classList.remove('active'); }
+        function openSettings() {
+            document.getElementById('settingsName').value = profile.name;
+            renderAvatarPicker('avatarPicker', profile.avatar);
+            closeProfile();
+            document.getElementById('settingsModal').classList.add('active');
+        }
+        function closeSettings() { document.getElementById('settingsModal').classList.remove('active'); }
+        function saveSettings() {
+            const name = document.getElementById('settingsName').value.trim();
+            if (!name) { alert('Введи имя!'); return; }
+            const selected = document.querySelector('#avatarPicker .avatar-option.selected');
+            profile.name = name;
+            profile.avatar = selected ? selected.textContent : profile.avatar;
+            saveProfile();
+            closeSettings();
+            updateProfileUI();
+        }
+        function resetAllData() {
+            if (!confirm('Удалить ВСЕ данные приложения?')) return;
+            if (!confirm('Это действие нельзя отменить!')) return;
+            const keysToRemove = [
+                'user_profile', 'my_shpargalka_data', 'lingo_theme',
+                'math_trainer_stats', 'russian_trainer_stats', 'chem_trainer_stats',
+                'phys_trainer_stats', 'bio_trainer_stats', 'hist_trainer_stats', 'eng_trainer_stats'
+            ];
+            keysToRemove.forEach(key => localStorage.removeItem(key));
+            location.reload();
+        }
+
+        function addXP(amount, reason) {
+            if (!profile) return;
+            profile.gems += amount;
+            profile.dailyXP += amount;
+            markActiveToday();
+            saveProfile();
+            updateProfileUI();
+            showPopup(`+${amount} 💎 ${reason || ''}`);
+            
+            if (profile.dailyXP >= 10 && (profile.dailyXP - amount) < 10) {
+                setTimeout(() => {
+                    showPopup('🎯 Цель выполнена!');
+                    setMascotMessage(randomFrom(MASCOT_MESSAGES.dailyGoalDone));
+                }, 1500);
+            }
+        }
+
+        function showPopup(text) {
+            const popup = document.createElement('div');
+            popup.className = 'coin-popup';
+            popup.textContent = text;
+            document.body.appendChild(popup);
+            setTimeout(() => popup.remove(), 2500);
+        }
+
+        function setMascotMessage(text) {
+            const el = document.getElementById('mascotText');
+            if (el) el.textContent = text;
+        }
+
+        function randomFrom(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        function renderShop() {
+            if (!profile) return;
+            const avatarShop = document.getElementById('avatarShop');
+            avatarShop.innerHTML = '';
+            PAID_AVATARS.forEach(av => {
+                const owned = profile.ownedAvatars.includes(av.icon);
+                const selected = profile.avatar === av.icon;
+                const div = document.createElement('div');
+                div.className = 'shop-item' + (owned ? ' owned' : '') + (selected ? ' selected' : '');
+                div.innerHTML = `
+                    <div class="shop-item-icon rarity-${av.rarity}">${av.icon}</div>
+                    <div class="shop-item-name">${av.name}</div>
+                    <div class="shop-item-price">${owned ? (selected ? '✓' : 'Куплен') : av.price + ' 💎'}</div>
+                    ${owned && !selected ? `<button class="duo-btn duo-btn-white duo-btn-sm" style="margin-top: 8px;" onclick="selectAvatar('${av.icon}')">ВЫБРАТЬ</button>` : ''}
+                    ${!owned ? `<button class="duo-btn duo-btn-blue duo-btn-sm" style="margin-top: 8px;" onclick="buyAvatar('${av.icon}', ${av.price})">КУПИТЬ</button>` : ''}
+                `;
+                avatarShop.appendChild(div);
+            });
+
+            const gamesShop = document.getElementById('gamesShop');
+            gamesShop.innerHTML = '';
+            GAMES.forEach(g => {
+                const owned = profile.ownedGames.includes(g.id);
+                const div = document.createElement('div');
+                div.className = 'shop-item' + (owned ? ' owned' : '');
+                div.innerHTML = `
+                    <div class="shop-item-icon">${g.icon}</div>
+                    <div class="shop-item-name">${g.name}</div>
+                    <div style="font-size: 0.75em; color: var(--text-secondary); margin: 3px 0;">${g.desc}</div>
+                    <div class="shop-item-price">${owned ? '✓' : g.price + ' 💎'}</div>
+                    ${!owned ? `<button class="duo-btn duo-btn-blue duo-btn-sm" style="margin-top: 8px;" onclick="buyGame('${g.id}', ${g.price})">КУПИТЬ</button>` : ''}
+                `;
+                gamesShop.appendChild(div);
+            });
+        }
+        function buyAvatar(icon, price) {
+            if (profile.gems < price) { alert(`Нужно ${price} 💎, у тебя ${profile.gems}.`); return; }
+            if (!confirm(`Купить за ${price} 💎?`)) return;
+            profile.gems -= price;
+            profile.ownedAvatars.push(icon);
+            saveProfile();
+            updateProfileUI();
+            showPopup(`🎉 Новый аватар!`);
+        }
+        function selectAvatar(icon) {
+            profile.avatar = icon;
+            saveProfile();
+            updateProfileUI();
+        }
+        function buyGame(id, price) {
+            if (profile.gems < price) { alert(`Нужно ${price} 💎, у тебя ${profile.gems}.`); return; }
+            if (!confirm(`Купить за ${price} 💎?`)) return;
+            profile.gems -= price;
+            profile.ownedGames.push(id);
+            saveProfile();
+            updateProfileUI();
+            showPopup(`🎮 Новая игра!`);
+        }
+
+        function renderGamesList() {
+            if (!profile) return;
+            const list = document.getElementById('gamesList');
+            list.innerHTML = '';
+            const ownedGames = GAMES.filter(g => profile.ownedGames.includes(g.id));
+            if (ownedGames.length === 0) {
+                list.innerHTML = `<div class="empty-state">
+                    <div class="empty-state-icon">🎮</div>
+                    <p style="font-weight: 800; margin-bottom: 8px;">Пока нет игр</p>
+                    <p style="font-size: 0.9em;">Купи игры в магазине!</p>
+                    <button class="duo-btn duo-btn-green" style="margin-top: 15px; max-width: 200px; margin-left: auto; margin-right: auto;" onclick="switchTab('shop')">В МАГАЗИН</button>
+                </div>`;
+                return;
+            }
+            const grid = document.createElement('div');
+            grid.className = 'games-grid';
+            ownedGames.forEach(g => {
+                const card = document.createElement('div');
+                card.className = 'game-card';
+                card.onclick = () => startGame(g.id);
+                card.innerHTML = `<div class="game-card-icon">${g.icon}</div><div class="game-card-title">${g.name}</div><div class="game-card-desc">${g.desc}</div>`;
+                grid.appendChild(card);
+            });
+            list.appendChild(grid);
+        }
+
+        function startGame(id) {
+            const area = document.getElementById('gameArea');
+            area.innerHTML = '';
+            if (id === 'guess') startGuessGame(area);
+            else if (id === 'rps') startRpsGame(area);
+            else if (id === 'memory') startMemoryGame(area);
+            else if (id === 'scramble') startScrambleGame(area);
+            else if (id === 'tictactoe') startTicTacToeGame(area);
+            area.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function startGuessGame(area) {
+            const secret = Math.floor(Math.random() * 100) + 1;
+            area.innerHTML = `
+                <div class="game-area">
+                    <div class="game-title">🎯 Угадай число</div>
+                    <div class="game-info"><div class="game-info-item">Попыток: <span id="guessAttempts">0</span></div></div>
+                    <p style="text-align: center; margin-bottom: 15px; font-weight: 700;">Число от 1 до 100</p>
+                    <input type="number" id="guessInput" class="answer-input" placeholder="Твоё число" min="1" max="100">
+                    <button class="duo-btn duo-btn-green" style="margin-top: 10px;" onclick="checkGuess()">ПРОВЕРИТЬ</button>
+                    <div id="guessFeedback" class="rps-result" style="display: none;"></div>
+                    <button class="duo-btn duo-btn-ghost" id="guessRestart" style="display: none; margin-top: 10px;" onclick="startGuessGame(document.getElementById('gameArea'))">🔄 ЗАНОВО</button>
+                </div>`;
+            window._guessSecret = secret;
+            window._guessAttempts = 0;
+            document.getElementById('guessInput').focus();
+            document.getElementById('guessInput').onkeypress = (e) => { if (e.key === 'Enter') checkGuess(); };
+        }
+        function checkGuess() {
+            const input = document.getElementById('guessInput');
+            const val = parseInt(input.value);
+            const fb = document.getElementById('guessFeedback');
+            if (isNaN(val) || val < 1 || val > 100) { fb.style.display = 'block'; fb.textContent = 'Введи от 1 до 100!'; return; }
+            window._guessAttempts++;
+            document.getElementById('guessAttempts').textContent = window._guessAttempts;
+            if (val === window._guessSecret) {
+                fb.style.display = 'block'; fb.style.background = '#D7FFB8'; fb.style.color = '#46A302';
+                fb.textContent = `🎉 Угадал за ${window._guessAttempts} попыток!`;
+                input.disabled = true;
+                document.getElementById('guessRestart').style.display = 'block';
+                const reward = window._guessAttempts <= 3 ? 20 : (window._guessAttempts <= 5 ? 10 : 5);
+                addXP(reward, 'за игру!');
+            } else {
+                fb.style.display = 'block'; fb.style.background = '#FFF4D4'; fb.style.color = '#8B6914';
+                fb.textContent = val < window._guessSecret ? '📈 БОЛЬШЕ' : '📉 МЕНЬШЕ';
+            }
+            input.value = ''; input.focus();
+        }
+
+        function startRpsGame(area) {
+            area.innerHTML = `
+                <div class="game-area">
+                    <div class="game-title">✂️ Камень-ножницы-бумага</div>
+                    <div class="game-info">
+                        <div class="game-info-item">Ты: <span id="rpsPlayer">0</span></div>
+                        <div class="game-info-item">Комп: <span id="rpsComp">0</span></div>
+                    </div>
+                    <div class="rps-buttons">
+                        <button class="rps-btn" onclick="playRps('rock')">🪨</button>
+                        <button class="rps-btn" onclick="playRps('paper')">📄</button>
+                        <button class="rps-btn" onclick="playRps('scissors')">✂️</button>
+                    </div>
+                    <div id="rpsResult" class="rps-result" style="display: none;"></div>
+                </div>`;
+            window._rpsScore = { player: 0, comp: 0 };
+        }
+        function playRps(playerChoice) {
+            const choices = ['rock', 'paper', 'scissors'];
+            const emojis = { rock: '🪨', paper: '📄', scissors: '✂️' };
+            const compChoice = choices[Math.floor(Math.random() * 3)];
+            let result;
+            if (playerChoice === compChoice) result = 'draw';
+            else if ((playerChoice === 'rock' && compChoice === 'scissors') || (playerChoice === 'paper' && compChoice === 'rock') || (playerChoice === 'scissors' && compChoice === 'paper')) {
+                result = 'win'; window._rpsScore.player++;
+            } else { result = 'lose'; window._rpsScore.comp++; }
+            document.getElementById('rpsPlayer').textContent = window._rpsScore.player;
+            document.getElementById('rpsComp').textContent = window._rpsScore.comp;
+            const resultDiv = document.getElementById('rpsResult');
+            resultDiv.style.display = 'block';
+            if (result === 'win') {
+                resultDiv.style.background = '#D7FFB8'; resultDiv.style.color = '#46A302';
+                resultDiv.textContent = `🎉 Победа! ${emojis[playerChoice]} > ${emojis[compChoice]}`;
+                if (window._rpsScore.player % 3 === 0) addXP(5, 'за КНБ');
+            } else if (result === 'lose') {
+                resultDiv.style.background = '#FFDFE0'; resultDiv.style.color = '#EA2B2B';
+                resultDiv.textContent = `😔 Проигрыш. ${emojis[compChoice]} > ${emojis[playerChoice]}`;
+            } else {
+                resultDiv.style.background = '#FFF4D4'; resultDiv.style.color = '#8B6914';
+                resultDiv.textContent = `🤝 Ничья!`;
+            }
+        }
+
+        function startMemoryGame(area) {
+            const emojis = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼'];
+            const cards = shuffleArray([...emojis, ...emojis]);
+            area.innerHTML = `
+                <div class="game-area">
+                    <div class="game-title">🧠 Память</div>
+                    <div class="game-info">
+                        <div class="game-info-item">Ходов: <span id="memMoves">0</span></div>
+                        <div class="game-info-item">Пар: <span id="memPairs">0</span>/8</div>
+                    </div>
+                    <div class="memory-grid" id="memoryGrid"></div>
+                    <button class="duo-btn duo-btn-ghost" onclick="startMemoryGame(document.getElementById('gameArea'))" style="margin-top: 10px;">🔄 ЗАНОВО</button>
+                </div>`;
+            const grid = document.getElementById('memoryGrid');
+            window._memState = { cards, flipped: [], matched: [], moves: 0, locked: false };
+            cards.forEach((emoji, idx) => {
+                const card = document.createElement('div');
+                card.className = 'memory-card';
+                card.dataset.idx = idx;
+                card.onclick = () => flipMemoryCard(idx);
+                grid.appendChild(card);
+            });
+        }
+        function flipMemoryCard(idx) {
+            const state = window._memState;
+            if (state.locked || state.flipped.includes(idx) || state.matched.includes(idx)) return;
+            const cards = document.querySelectorAll('.memory-card');
+            cards[idx].textContent = state.cards[idx];
+            cards[idx].classList.add('flipped');
+            state.flipped.push(idx);
+            if (state.flipped.length === 2) {
+                state.moves++;
+                document.getElementById('memMoves').textContent = state.moves;
+                state.locked = true;
+                const [i1, i2] = state.flipped;
+                if (state.cards[i1] === state.cards[i2]) {
+                    state.matched.push(i1, i2);
+                    cards[i1].classList.add('matched');
+                    cards[i2].classList.add('matched');
+                    document.getElementById('memPairs').textContent = state.matched.length / 2;
+                    state.flipped = []; state.locked = false;
+                    if (state.matched.length === state.cards.length) {
+                        setTimeout(() => {
+                            const reward = state.moves <= 12 ? 30 : (state.moves <= 16 ? 15 : 5);
+                            addXP(reward, 'за Память!');
+                            showPopup(`🎉 Победа за ${state.moves} ходов!`);
+                        }, 300);
+                    }
+                } else {
+                    setTimeout(() => {
+                        cards[i1].textContent = ''; cards[i2].textContent = '';
+                        cards[i1].classList.remove('flipped'); cards[i2].classList.remove('flipped');
+                        state.flipped = []; state.locked = false;
+                    }, 800);
+                }
+            }
+        }
+
+        const scrambleWords = ['ЯБЛОКО', 'ШКОЛА', 'УЧЕНИК', 'ПРАВИЛО', 'ФОРМУЛА', 'ИСТОРИЯ', 'ПРИРОДА', 'ЗНАНИЕ', 'УЧИТЕЛЬ', 'ПЯТНИЦА', 'ТЕТРАДЬ', 'МОЛОКО', 'КОРОВА', 'СОБАКА', 'УЛИЦА'];
+        function startScrambleGame(area) {
+            let word, scrambled;
+            do {
+                word = scrambleWords[Math.floor(Math.random() * scrambleWords.length)];
+                scrambled = shuffleArray(word.split('')).join('');
+            } while (scrambled === word);
+            area.innerHTML = `
+                <div class="game-area">
+                    <div class="game-title">🔤 Анаграммы</div>
+                    <p style="text-align: center; margin-bottom: 10px; font-weight: 700;">Собери слово:</p>
+                    <div class="scramble-word">${scrambled}</div>
+                    <input type="text" id="scrambleInput" class="answer-input" placeholder="Слово" style="text-transform: uppercase;">
+                    <button class="duo-btn duo-btn-green" style="margin-top: 10px;" onclick="checkScramble('${word}')">ПРОВЕРИТЬ</button>
+                    <div id="scrambleFeedback" class="rps-result" style="display: none;"></div>
+                    <button class="duo-btn duo-btn-ghost" id="scrambleRestart" style="display: none; margin-top: 10px;" onclick="startScrambleGame(document.getElementById('gameArea'))">🔄 ДРУГОЕ</button>
+                </div>`;
+            document.getElementById('scrambleInput').focus();
+            document.getElementById('scrambleInput').onkeypress = (e) => { if (e.key === 'Enter') checkScramble(word); };
+        }
+        function checkScramble(correctWord) {
+            const input = document.getElementById('scrambleInput').value.trim().toUpperCase();
+            const fb = document.getElementById('scrambleFeedback');
+            if (input === correctWord) {
+                fb.style.display = 'block'; fb.style.background = '#D7FFB8'; fb.style.color = '#46A302';
+                fb.textContent = `🎉 Верно! "${correctWord}"`;
+                document.getElementById('scrambleInput').disabled = true;
+                document.getElementById('scrambleRestart').style.display = 'block';
+                addXP(10, 'за анаграмму!');
+            } else {
+                fb.style.display = 'block'; fb.style.background = '#FFDFE0'; fb.style.color = '#EA2B2B';
+                fb.textContent = '❌ Неверно!';
+            }
+        }
+
+        function startTicTacToeGame(area) {
+            area.innerHTML = `
+                <div class="game-area">
+                    <div class="game-title">⭕ Крестики-нолики</div>
+                    <p style="text-align: center; margin-bottom: 10px; font-weight: 700;">Ты — <span style="color: var(--duo-red);">X</span>, комп — <span style="color: var(--duo-blue);">O</span></p>
+                    <div class="ttt-grid" id="tttGrid"></div>
+                    <div id="tttStatus" style="text-align: center; font-weight: 900; margin: 10px 0;">Твой ход!</div>
+                    <button class="duo-btn duo-btn-ghost" onclick="startTicTacToeGame(document.getElementById('gameArea'))">🔄 ЗАНОВО</button>
+                </div>`;
+            window._tttState = { board: Array(9).fill(null), gameActive: true, currentPlayer: 'X' };
+            const grid = document.getElementById('tttGrid');
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'ttt-cell';
+                cell.onclick = () => handleTicTacToeClick(i);
+                grid.appendChild(cell);
+            }
+        }
+        function handleTicTacToeClick(index) {
+            const state = window._tttState;
+            if (!state.gameActive || state.board[index] !== null || state.currentPlayer !== 'X') return;
+            makeTicTacToeMove(index, 'X');
+            if (state.gameActive) {
+                document.getElementById('tttStatus').textContent = 'Думаю...';
+                setTimeout(() => {
+                    const aiMove = getBestTicTacToeMove(state.board, 'O');
+                    if (aiMove !== -1) makeTicTacToeMove(aiMove, 'O');
+                }, 500);
+            }
+        }
+        function getBestTicTacToeMove(board, player) {
+            const opponent = player === 'O' ? 'X' : 'O';
+            for (let i = 0; i < 9; i++) {
+                if (board[i] === null) {
+                    const testBoard = [...board]; testBoard[i] = player;
+                    if (checkTicTacToeWinBoard(testBoard, player)) return i;
+                }
+            }
+            for (let i = 0; i < 9; i++) {
+                if (board[i] === null) {
+                    const testBoard = [...board]; testBoard[i] = opponent;
+                    if (checkTicTacToeWinBoard(testBoard, opponent)) return i;
+                }
+            }
+            if (board[4] === null) return 4;
+            const corners = [0, 2, 6, 8].filter(i => board[i] === null);
+            if (corners.length > 0) return corners[Math.floor(Math.random() * corners.length)];
+            const empty = board.map((v, i) => v === null ? i : -1).filter(i => i !== -1);
+            return empty.length > 0 ? empty[Math.floor(Math.random() * empty.length)] : -1;
+        }
+        function checkTicTacToeWinBoard(board, player) {
+            const wins = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]];
+            return wins.some(combo => combo.every(idx => board[idx] === player));
+        }
+        function makeTicTacToeMove(index, player) {
+            const state = window._tttState;
+            state.board[index] = player;
+            const cells = document.querySelectorAll('.ttt-cell');
+            cells[index].textContent = player;
+            cells[index].classList.add(player.toLowerCase());
+            if (checkTicTacToeWinBoard(state.board, player)) {
+                state.gameActive = false;
+                document.getElementById('tttStatus').textContent = player === 'X' ? '🎉 Ты победил!' : '😔 Компьютер победил';
+                if (player === 'X') addXP(15, 'за победу!');
+                return;
+            }
+            if (!state.board.includes(null)) {
+                state.gameActive = false;
+                document.getElementById('tttStatus').textContent = '🤝 Ничья!';
+                return;
+            }
+            state.currentPlayer = player === 'X' ? 'O' : 'X';
+            if (state.currentPlayer === 'X') document.getElementById('tttStatus').textContent = 'Твой ход!';
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            const navBtn = document.querySelector(`.nav-btn[data-tab="${tabName}"]`);
+            if (navBtn) navBtn.classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (tabName === 'games') document.getElementById('gameArea').innerHTML = '';
+        }
+
+        const STORAGE_KEY = 'my_shpargalka_data';
+        function getFormulas() { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+        function saveFormulas(f) { localStorage.setItem(STORAGE_KEY, JSON.stringify(f)); }
+        function addFormula() {
+            const s = document.getElementById('subject').value.trim();
+            const t = document.getElementById('title').value.trim();
+            const c = document.getElementById('content').value.trim();
+            if (!s || !t || !c) {
+                document.getElementById('addError').style.display = 'block';
+                setTimeout(() => document.getElementById('addError').style.display = 'none', 3000);
+                return;
+            }
+            const formulas = getFormulas();
+            formulas.push({ id: Date.now(), subject: s, title: t, content: c });
+            saveFormulas(formulas);
+            document.getElementById('subject').value = '';
+            document.getElementById('title').value = '';
+            document.getElementById('content').value = '';
+            document.getElementById('addSuccess').style.display = 'block';
+            setTimeout(() => document.getElementById('addSuccess').style.display = 'none', 2000);
+            searchFormulas();
+        }
+        function searchFormulas() {
+            const q = document.getElementById('search').value.toLowerCase();
+            const list = document.getElementById('formulasList');
+            list.innerHTML = '';
+            const filtered = getFormulas().filter(f => f.subject.toLowerCase().includes(q) || f.title.toLowerCase().includes(q) || f.content.toLowerCase().includes(q)).reverse();
+            if (filtered.length === 0) { list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📝</div><p>Пока пусто</p></div>'; return; }
+            filtered.forEach(f => {
+                const card = document.createElement('div');
+                card.className = 'formula-card';
+                card.innerHTML = `
+                    <div class="formula-subject">${escapeHtml(f.subject)}</div>
+                    <div class="formula-title">${escapeHtml(f.title)}</div>
+                    <div class="formula-text">${escapeHtml(f.content)}</div>
+                    <div class="card-actions">
+                        <button class="duo-btn duo-btn-blue duo-btn-sm" onclick="copyToClipboard(${f.id}, this)">📋 КОПИРОВАТЬ</button>
+                        <button class="duo-btn duo-btn-red duo-btn-sm" onclick="deleteFormula(${f.id})">🗑️</button>
+                    </div>`;
+                list.appendChild(card);
+            });
+        }
+        function copyToClipboard(id, btn) {
+            const formulas = getFormulas();
+            const f = formulas.find(item => item.id === id);
+            if (f) {
+                navigator.clipboard.writeText(f.content).then(() => {
+                    const originalText = btn.textContent;
+                    btn.textContent = '✓ ГОТОВО';
+                    setTimeout(() => btn.textContent = originalText, 2000);
+                }).catch(() => {
+                    alert('Не удалось скопировать');
+                });
+            }
+        }
+        function deleteFormula(id) {
+            if (confirm('Удалить?')) {
+                saveFormulas(getFormulas().filter(f => f.id !== id));
+                searchFormulas();
+            }
+        }
+        function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+
+        function setupSubjectQuiz(subject, topicSelectId, sectionId, questionTextId, optionsId, feedbackId, nextBtnId, statsKey, questionGenerator) {
+            const topic = document.getElementById(topicSelectId).value;
+            const target = questionGenerator(topic);
+            let options = [target.a, ...target.wrong];
+            options = shuffleArray(options);
+
+            document.getElementById(questionTextId).textContent = target.q;
+            const optsDiv = document.getElementById(optionsId);
+            optsDiv.innerHTML = '';
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = opt;
+                btn.onclick = () => checkSubjectAnswer(subject, opt, target.a, btn, optsDiv, feedbackId, nextBtnId, statsKey);
+                optsDiv.appendChild(btn);
+            });
+            document.getElementById(sectionId).style.display = 'block';
+            hideFeedback(feedbackId);
+            document.getElementById(nextBtnId).style.display = 'none';
+            setMascotMessage(randomFrom(MASCOT_MESSAGES.start));
+        }
+
+        function hideFeedback(id) {
+            const fb = document.getElementById(id);
+            if (fb) { fb.classList.remove('show', 'correct', 'incorrect'); }
+        }
+
+        function showFeedback(id, isCorrect, title, detail) {
+            const fb = document.getElementById(id);
+            fb.className = 'feedback-bar show ' + (isCorrect ? 'correct' : 'incorrect');
+            fb.innerHTML = `
+                <div class="feedback-content">
+                    <div class="feedback-icon">${isCorrect ? '✅' : '❌'}</div>
+                    <div class="feedback-text">
+                        <div class="feedback-title">${title}</div>
+                        ${detail ? `<div class="feedback-detail">${detail}</div>` : ''}
+                    </div>
+                </div>`;
+        }
+
+        function checkSubjectAnswer(subject, selected, correct, btn, optsDiv, feedbackId, nextBtnId, statsKey) {
+            let stats = JSON.parse(localStorage.getItem(statsKey) || '{"total":0,"correct":0,"streak":0}');
+            stats.total++;
+            const buttons = optsDiv.querySelectorAll('.option-btn');
+            buttons.forEach(b => b.disabled = true);
+            
+            const isCorrect = String(selected).toLowerCase() === String(correct).toLowerCase();
+            if (isCorrect) {
+                stats.correct++;
+                stats.streak = (stats.streak || 0) + 1;
+                btn.classList.add('correct-opt');
+                showFeedback(feedbackId, true, randomFrom(MASCOT_MESSAGES.correct), `Правильный ответ: ${correct}`);
+                addXP(5, 'за ответ');
+                if (stats.streak === 5) { addXP(10, 'бонус серии!'); }
+                if (stats.streak === 10) { addXP(20, 'бонус серии!'); }
+                if (stats.streak > 0 && stats.streak % 5 === 0) {
+                    setMascotMessage(randomFrom(MASCOT_MESSAGES.streak) + ` (${stats.streak})`);
+                } else {
+                    setMascotMessage(randomFrom(MASCOT_MESSAGES.correct));
+                }
+            } else {
+                stats.streak = 0;
+                btn.classList.add('wrong-opt');
+                buttons.forEach(b => { if(String(b.textContent).toLowerCase() === String(correct).toLowerCase()) b.classList.add('correct-opt'); });
+                showFeedback(feedbackId, false, randomFrom(MASCOT_MESSAGES.wrong), `Правильно: ${correct}`);
+                setMascotMessage(randomFrom(MASCOT_MESSAGES.wrong));
+            }
+            document.getElementById(nextBtnId).style.display = 'block';
+            localStorage.setItem(statsKey, JSON.stringify(stats));
+            updateSubjectStatsUI(subject, stats);
+            updateProgressBar(subject, stats);
+            if (profile) updateProfileUI();
+        }
+
+        function updateProgressBar(subject, stats) {
+            const progressEl = document.getElementById(subject + 'Progress');
+            if (progressEl) {
+                const progress = Math.min((stats.total % 10) * 10, 100);
+                progressEl.style.width = progress + '%';
+            }
+        }
+
+        function updateSubjectStatsUI(subject, stats) {
+            const prefix = subject === 'math' ? 'math' : subject === 'rus' ? 'rus' : subject === 'chem' ? 'chem' : subject === 'phys' ? 'phys' : subject === 'bio' ? 'bio' : subject === 'hist' ? 'hist' : 'eng';
+            document.getElementById(prefix + 'TotalSolved').textContent = stats.total;
+            document.getElementById(prefix + 'CorrectCount').textContent = stats.correct;
+            document.getElementById(prefix + 'Accuracy').textContent = stats.total ? Math.round((stats.correct/stats.total)*100) + '%' : '0%';
+            document.getElementById(prefix + 'StreakCount').textContent = stats.streak || 0;
+        }
+
+        let currentMath = null;
+        function generateMathProblem() {
+            const diff = document.getElementById('difficulty').value;
+            const opType = document.getElementById('operation').value;
+            const max = diff === 'easy' ? 20 : (diff === 'medium' ? 100 : 1000);
+            let n1 = Math.floor(Math.random() * max) + 1;
+            let n2 = Math.floor(Math.random() * max) + 1;
+            let ops = opType === 'mixed' ? ['+', '−', '×', '÷'] : opType === 'add' ? ['+'] : opType === 'subtract' ? ['−'] : opType === 'multiply' ? ['×'] : opType === 'divide' ? ['÷'] : ['^'];
+            let op = ops[Math.floor(Math.random() * ops.length)];
+            let ans, text;
+            
+            if (op === '+') { ans = n1 + n2; text = `${n1} + ${n2} = ?`; }
+            else if (op === '−') { if (n1 < n2) [n1, n2] = [n2, n1]; ans = n1 - n2; text = `${n1} − ${n2} = ?`; }
+            else if (op === '×') { 
+                const limit = diff === 'easy' ? 10 : (diff === 'medium' ? 12 : 20);
+                n1 = Math.floor(Math.random() * limit) + 2;
+                n2 = Math.floor(Math.random() * limit) + 2;
+                ans = n1 * n2; text = `${n1} × ${n2} = ?`; 
+            }
+            else if (op === '÷') { 
+                const limit = diff === 'easy' ? 10 : (diff === 'medium' ? 12 : 20);
+                n2 = Math.floor(Math.random() * limit) + 2;
+                ans = Math.floor(Math.random() * limit) + 1;
+                n1 = ans * n2;
+                text = `${n1} ÷ ${n2} = ?`; 
+            }
+            else { 
+                const base = Math.floor(Math.random() * (diff === 'easy' ? 10 : 15)) + 2;
+                const exp = Math.floor(Math.random() * 2) + 2;
+                ans = Math.pow(base, exp);
+                text = `${base}${exp === 2 ? '²' : '³'} = ?`;
+            }
+            currentMath = { text, answer: ans };
+            document.getElementById('mathProblemText').textContent = currentMath.text;
+            document.getElementById('mathProblemSection').style.display = 'block';
+            document.getElementById('mathAnswer').value = '';
+            document.getElementById('mathAnswer').focus();
+            hideFeedback('mathFeedback');
+            document.getElementById('mathNextBtn').style.display = 'none';
+            document.getElementById('mathAnswer').disabled = false;
+            setMascotMessage(randomFrom(MASCOT_MESSAGES.start));
+        }
+        function checkMathAnswer() {
+            const val = parseInt(document.getElementById('mathAnswer').value);
+            if (isNaN(val)) { document.getElementById('mathErrorMsg').style.display = 'block'; return; }
+            document.getElementById('mathErrorMsg').style.display = 'none';
+            let stats = JSON.parse(localStorage.getItem('math_trainer_stats') || '{"total":0,"correct":0,"streak":0}');
+            stats.total++;
+            if (val === currentMath.answer) {
+                stats.correct++;
+                stats.streak = (stats.streak || 0) + 1;
+                showFeedback('mathFeedback', true, randomFrom(MASCOT_MESSAGES.correct), `Ответ: ${currentMath.answer}`);
+                addXP(5, 'за ответ');
+                if (stats.streak === 5) addXP(10, 'бонус серии!');
+                if (stats.streak === 10) addXP(20, 'бонус серии!');
+                setMascotMessage(randomFrom(MASCOT_MESSAGES.correct));
+            } else {
+                stats.streak = 0;
+                showFeedback('mathFeedback', false, randomFrom(MASCOT_MESSAGES.wrong), `Ответ: ${currentMath.answer}`);
+                setMascotMessage(randomFrom(MASCOT_MESSAGES.wrong));
+            }
+            document.getElementById('mathNextBtn').style.display = 'block';
+            document.getElementById('mathAnswer').disabled = true;
+            localStorage.setItem('math_trainer_stats', JSON.stringify(stats));
+            updateSubjectStatsUI('math', stats);
+            updateProgressBar('math', stats);
+            if (profile) updateProfileUI();
+        }
+
+        const rusWords = {
+            vowel: [
+                { d: 'к_рова', a: 'о', f: 'кровь', h: 'Проверь: крОвь' },
+                { d: 'л_сной', a: 'е', f: 'лесной', h: 'Проверь: лЕс' },
+                { d: 'в_да', a: 'о', f: 'вода', h: 'Проверь: вОды' },
+                { d: 'тр_ва', a: 'а', f: 'трава', h: 'Проверь: трАвы' },
+                { d: 'з_ма', a: 'и', f: 'зима', h: 'Проверь: зИмний' },
+                { d: 'ст_на', a: 'е', f: 'стена', h: 'Проверь: стЕны' },
+                { d: 'гр_бы', a: 'и', f: 'грибы', h: 'Проверь: грИб' },
+                { d: 'н_чи', a: 'о', f: 'ночи', h: 'Проверь: нОчь' },
+                { d: 'д_жди', a: 'о', f: 'дожди', h: 'Проверь: дОждь' },
+                { d: 'х_лодный', a: 'о', f: 'холодный', h: 'Проверь: хОлод' }
+            ],
+            consonant: [
+                { d: 'ду_', a: 'б', f: 'дуб', h: 'Проверь: дУБы' },
+                { d: 'ло_ка', a: 'д', f: 'лодка', h: 'Проверь: лоДки' },
+                { d: 'гла_', a: 'з', f: 'глаз', h: 'Проверь: глаЗа' },
+                { d: 'са_', a: 'д', f: 'сад', h: 'Проверь: саДы' },
+                { d: 'сне_', a: 'г', f: 'снег', h: 'Проверь: снеГа' },
+                { d: 'но_', a: 'ж', f: 'нож', h: 'Проверь: ноЖи' }
+            ],
+            dictionary: [
+                { d: 'к_рова', a: 'о', f: 'корова', h: 'Словарное слово' },
+                { d: 'м_локо', a: 'о', f: 'молоко', h: 'Словарное слово' },
+                { d: 'с_бака', a: 'о', f: 'собака', h: 'Словарное слово' },
+                { d: 'т_традь', a: 'е', f: 'тетрадь', h: 'Словарное слово' },
+                { d: 'уч_тель', a: 'и', f: 'учитель', h: 'Словарное слово' },
+                { d: 'в_рона', a: 'о', f: 'ворона', h: 'Словарное слово' }
+            ],
+            prefix: [
+                { d: '_ехать', a: 'при', f: 'приехать', h: 'Прибытие' },
+                { d: '_шить', a: 'при', f: 'пришить', h: 'Присоединение' },
+                { d: '_красный', a: 'пре', f: 'прекрасный', h: 'Очень красивый' },
+                { d: '_рвать', a: 'пре', f: 'прервать', h: 'Прекращение' },
+                { d: '_морский', a: 'при', f: 'приморский', h: 'Рядом с морем' }
+            ],
+            ne: [
+                { d: '(не)хотел', a: 'раздельно', f: 'не хотел', h: 'Глагол — РАЗДЕЛЬНО' },
+                { d: '(не)был', a: 'раздельно', f: 'не был', h: 'Глагол — РАЗДЕЛЬНО' },
+                { d: '(не)видел', a: 'раздельно', f: 'не видел', h: 'Глагол — РАЗДЕЛЬНО' }
+            ],
+            ending: [
+                { d: 'он стро_т', a: 'и', f: 'он строит', h: 'II спряжение' },
+                { d: 'ты чита_шь', a: 'е', f: 'ты читаешь', h: 'I спряжение' },
+                { d: 'они кле_т', a: 'ят', f: 'они клеят', h: 'II спряжение' },
+                { d: 'они вид_т', a: 'я', f: 'они видят', h: 'I спряжение (искл.)' }
+            ],
+            alternation: [
+                { d: 'гар_ть', a: 'о', f: 'гореть', h: 'гор-гар' },
+                { d: 'зар_й', a: 'а', f: 'заря', h: 'зар-зор' },
+                { d: 'кас_ться', a: 'а', f: 'касаться', h: 'кас-кос' },
+                { d: 'пол_жить', a: 'о', f: 'положить', h: 'ЛАГ/ЛОЖ' }
+            ],
+            stress: [
+                { d: 'звонИт или звОнит?', a: 'звонит', f: 'звонИт', h: 'Правильно: звонИт' },
+                { d: 'тОрты или тортЫ?', a: 'торты', f: 'тОрты', h: 'Правильно: тОрты' },
+                { d: 'клАла или клалА?', a: 'клала', f: 'клалА', h: 'Правильно: клалА' },
+                { d: 'красИвее или красивЕе?', a: 'красивее', f: 'красИвее', h: 'Правильно: красИвее' }
+            ],
+            parts: [
+                { d: 'Часть речи: "бег"?', a: 'существительное', f: 'существительное', h: 'Бег — предмет (что?)' },
+                { d: 'Часть речи: "бежать"?', a: 'глагол', f: 'глагол', h: 'Бежать — действие' },
+                { d: 'Часть речи: "быстрый"?', a: 'прилагательное', f: 'прилагательное', h: 'Быстрый — признак' },
+                { d: 'Часть речи: "быстро"?', a: 'наречие', f: 'наречие', h: 'Быстро — как?' }
+            ]
+        };
+        let currentRus = null;
+        function updateRusPlaceholder() {
+            const r = document.getElementById('rule').value;
+            const input = document.getElementById('rusLetter');
+            if (r === 'prefix') input.placeholder = 'пре или при';
+            else if (r === 'ne') input.placeholder = 'слитно или раздельно';
+            else if (r === 'stress') input.placeholder = 'Правильный вариант';
+            else if (r === 'parts') input.placeholder = 'существительное, глагол...';
+            else input.placeholder = 'Буква';
+        }
+        function generateRusWord() {
+            const rule = document.getElementById('rule').value;
+            let pool = rule === 'all' ? [].concat(...Object.values(rusWords)) : rusWords[rule];
+            currentRus = pool[Math.floor(Math.random() * pool.length)];
+            document.getElementById('rusWordText').textContent = currentRus.d;
+            document.getElementById('rusHintText').textContent = currentRus.h;
+            document.getElementById('rusWordSection').style.display = 'block';
+            document.getElementById('rusLetter').value = '';
+            document.getElementById('rusLetter').focus();
+            hideFeedback('rusFeedback');
+            document.getElementById('rusNextBtn').style.display = 'none';
+            document.getElementById('rusLetter').disabled = false;
+            updateRusPlaceholder();
+            setMascotMessage(randomFrom(MASCOT_MESSAGES.start));
+        }
+        function checkRusLetter() {
+            const inp = document.getElementById('rusLetter').value.trim().toLowerCase();
+            if (!inp) {
+                document.getElementById('rusErrorMsg').style.display = 'block';
+                return;
+            }
+            document.getElementById('rusErrorMsg').style.display = 'none';
+            let stats = JSON.parse(localStorage.getItem('russian_trainer_stats') || '{"total":0,"correct":0,"streak":0}');
+            stats.total++;
+            if (inp === currentRus.a.toLowerCase()) {
+                stats.correct++;
+                stats.streak = (stats.streak || 0) + 1;
+                showFeedback('rusFeedback', true, randomFrom(MASCOT_MESSAGES.correct), `Слово: ${currentRus.f}`);
+                addXP(5, 'за ответ');
+                if (stats.streak === 5) addXP(10, 'бонус серии!');
+                if (stats.streak === 10) addXP(20, 'бонус серии!');
+                setMascotMessage(randomFrom(MASCOT_MESSAGES.correct));
+            } else {
+                stats.streak = 0;
+                showFeedback('rusFeedback', false, randomFrom(MASCOT_MESSAGES.wrong), `Ответ: ${currentRus.a}. Слово: ${currentRus.f}`);
+                setMascotMessage(randomFrom(MASCOT_MESSAGES.wrong));
+            }
+            document.getElementById('rusNextBtn').style.display = 'block';
+            document.getElementById('rusLetter').disabled = true;
+            localStorage.setItem('russian_trainer_stats', JSON.stringify(stats));
+            updateSubjectStatsUI('rus', stats);
+            updateProgressBar('rus', stats);
+            if (profile) updateProfileUI();
+        }
+
+        const elements = [
+            { s: 'H', n: 'Водород', num: 1, v: 'I', mass: 1, group: 1 },
+            { s: 'He', n: 'Гелий', num: 2, v: '0', mass: 4, group: 8 },
+            { s: 'Li', n: 'Литий', num: 3, v: 'I', mass: 7, group: 1 },
+            { s: 'Be', n: 'Бериллий', num: 4, v: 'II', mass: 9, group: 2 },
+            { s: 'B', n: 'Бор', num: 5, v: 'III', mass: 11, group: 3 },
+            { s: 'C', n: 'Углерод', num: 6, v: 'IV', mass: 12, group: 4 },
+            { s: 'N', n: 'Азот', num: 7, v: 'III', mass: 14, group: 5 },
+            { s: 'O', n: 'Кислород', num: 8, v: 'II', mass: 16, group: 6 },
+            { s: 'F', n: 'Фтор', num: 9, v: 'I', mass: 19, group: 7 },
+            { s: 'Ne', n: 'Неон', num: 10, v: '0', mass: 20, group: 8 },
+            { s: 'Na', n: 'Натрий', num: 11, v: 'I', mass: 23, group: 1 },
+            { s: 'Mg', n: 'Магний', num: 12, v: 'II', mass: 24, group: 2 },
+            { s: 'Al', n: 'Алюминий', num: 13, v: 'III', mass: 27, group: 3 },
+            { s: 'Si', n: 'Кремний', num: 14, v: 'IV', mass: 28, group: 4 },
+            { s: 'P', n: 'Фосфор', num: 15, v: 'V', mass: 31, group: 5 },
+            { s: 'S', n: 'Сера', num: 16, v: 'II', mass: 32, group: 6 },
+            { s: 'Cl', n: 'Хлор', num: 17, v: 'I', mass: 35, group: 7 },
+            { s: 'Ar', n: 'Аргон', num: 18, v: '0', mass: 40, group: 8 },
+            { s: 'K', n: 'Калий', num: 19, v: 'I', mass: 39, group: 1 },
+            { s: 'Ca', n: 'Кальций', num: 20, v: 'II', mass: 40, group: 2 },
+            { s: 'Fe', n: 'Железо', num: 26, v: 'II', mass: 56, group: 8 },
+            { s: 'Cu', n: 'Медь', num: 29, v: 'II', mass: 64, group: 1 },
+            { s: 'Zn', n: 'Цинк', num: 30, v: 'II', mass: 65, group: 2 },
+            { s: 'Ag', n: 'Серебро', num: 47, v: 'I', mass: 108, group: 1 },
+            { s: 'Au', n: 'Золото', num: 79, v: 'III', mass: 197, group: 1 }
+        ];
+        function generateChemQuestion() {
+            const mode = document.getElementById('chemMode').value;
+            const target = elements[Math.floor(Math.random() * elements.length)];
+            let question, correct, options;
+            if (mode === 'symbol') {
+                question = `Символ элемента «${target.n}»?`; correct = target.s;
+                options = [target.s]; while(options.length < 4) { const r = elements[Math.floor(Math.random() * elements.length)].s; if (!options.includes(r)) options.push(r); }
+            } else if (mode === 'name') {
+                question = `Название элемента «${target.s}»?`; correct = target.n;
+                options = [target.n]; while(options.length < 4) { const r = elements[Math.floor(Math.random() * elements.length)].n; if (!options.includes(r)) options.push(r); }
+            } else if (mode === 'number') {
+                question = `№ элемента «${target.n}»?`; correct = target.num.toString();
+                options = [target.num]; while(options.length < 4) { const r = Math.floor(Math.random() * 50) + 1; if (!options.includes(r)) options.push(r); }
+            } else if (mode === 'valence') {
+                question = `Валентность «${target.n}»?`; correct = target.v;
+                const allV = ['I', 'II', 'III', 'IV', 'V', '0']; options = [target.v];
+                while(options.length < 4) { const r = allV[Math.floor(Math.random() * allV.length)]; if (!options.includes(r)) options.push(r); }
+            } else if (mode === 'mass') {
+                question = `Атомная масса «${target.n}»?`; correct = target.mass.toString();
+                options = [target.mass]; while(options.length < 4) { const r = Math.floor(Math.random() * 150) + 1; if (!options.includes(r)) options.push(r); }
+            } else {
+                question = `Группа элемента «${target.n}»?`; correct = target.group.toString();
+                options = [target.group]; while(options.length < 4) { const r = Math.floor(Math.random() * 8) + 1; if (!options.includes(r)) options.push(r); }
+            }
+            setupSubjectQuiz('chem', 'chemMode', 'chemSection', 'chemQuestionText', 'chemOptions', 'chemFeedback', 'chemNextBtn', 'chem_trainer_stats', () => ({ q: question, a: correct, wrong: options.filter(o => String(o) !== String(correct)) }));
+        }
+
+        const physicsData = {
+            formulas: [
+                { q: 'Формула скорости', a: 'v = S / t', wrong: ['v = S * t', 'v = m / V', 'F = m * a'] },
+                { q: 'Формула плотности', a: 'ρ = m / V', wrong: ['ρ = m * V', 'ρ = V / m', 'p = F / S'] },
+                { q: 'Формула силы тяжести', a: 'F = m * g', wrong: ['F = m / g', 'F = m * v', 'E = m * c²'] },
+                { q: 'Формула давления', a: 'p = F / S', wrong: ['p = F * S', 'p = S / F', 'p = m * g'] },
+                { q: 'Закон Ома', a: 'I = U / R', wrong: ['I = U * R', 'I = R / U', 'P = U * I'] },
+                { q: 'Формула мощности', a: 'P = A / t', wrong: ['P = A * t', 'P = F * S', 'P = m * g'] }
+            ],
+            units: [
+                { q: 'Единица силы', a: 'Ньютон (Н)', wrong: ['Джоуль (Дж)', 'Паскаль (Па)', 'Ватт (Вт)'] },
+                { q: 'Единица мощности', a: 'Ватт (Вт)', wrong: ['Джоуль (Дж)', 'Ньютон (Н)', 'Ампер (А)'] },
+                { q: 'Единица напряжения', a: 'Вольт (В)', wrong: ['Ампер (А)', 'Ом (Ω)', 'Джоуль (Дж)'] },
+                { q: 'Единица работы', a: 'Джоуль (Дж)', wrong: ['Ватт (Вт)', 'Ньютон (Н)', 'Паскаль (Па)'] },
+                { q: 'Единица давления', a: 'Паскаль (Па)', wrong: ['Ньютон (Н)', 'Джоуль (Дж)', 'Ватт (Вт)'] }
+            ],
+            mechanics: [
+                { q: 'Что такое инерция?', a: 'Сохранение скорости', wrong: ['Изменение скорости', 'Увеличение массы', 'Действие силы'] },
+                { q: 'Второй закон Ньютона', a: 'F = m * a', wrong: ['F = m / a', 'F = a / m', 'F = m + a'] },
+                { q: 'Что измеряется в кг?', a: 'Масса', wrong: ['Сила', 'Вес', 'Объём'] },
+                { q: 'Третий закон Ньютона', a: 'Силы равны и противоположны', wrong: ['Равны и в одну сторону', 'Пропорциональны массам', 'Не зависят друг от друга'] }
+            ],
+            energy: [
+                { q: 'Кинетическая энергия', a: 'E = mv² / 2', wrong: ['E = mgh', 'E = mv', 'E = m * g * h'] },
+                { q: 'Потенциальная энергия', a: 'E = mgh', wrong: ['E = mv² / 2', 'E = mv', 'E = F * S'] },
+                { q: 'Единица энергии', a: 'Джоуль (Дж)', wrong: ['Ватт (Вт)', 'Ньютон (Н)', 'Паскаль (Па)'] }
+            ],
+            thermal: [
+                { q: 'Что такое температура?', a: 'Мера кинетической энергии молекул', wrong: ['Мера массы', 'Мера объёма', 'Мера плотности'] },
+                { q: 'Единица температуры', a: 'Кельвин или Цельсий', wrong: ['Джоуль', 'Паскаль', 'Ньютон'] },
+                { q: 'При нагревании тело...', a: 'Расширяется', wrong: ['Сжимается', 'Остаётся прежним', 'Испаряется'] }
+            ],
+            electricity: [
+                { q: 'Электрический ток — это...', a: 'Движение заряженных частиц', wrong: ['Движение молекул', 'Колебания атомов', 'Излучение света'] },
+                { q: 'В Амперах измеряют...', a: 'Силу тока', wrong: ['Напряжение', 'Сопротивление', 'Мощность'] },
+                { q: 'Закон Ома для цепи', a: 'I = U / R', wrong: ['I = U * R', 'I = R / U', 'U = I / R'] }
+            ],
+            optics: [
+                { q: 'Скорость света', a: '≈ 300 000 км/с', wrong: ['≈ 340 м/с', '≈ 1000 км/с', '≈ 100 км/с'] },
+                { q: 'Закон отражения', a: 'Угол падения = углу отражения', wrong: ['Угол равен 90°', 'Свет поглощается', 'Свет преломляется'] },
+                { q: 'Эхо — это...', a: 'Отражение звука', wrong: ['Поглощение звука', 'Усиление звука', 'Рассеяние звука'] }
+            ]
+        };
+        function generatePhysQuestion() {
+            const topic = document.getElementById('physTopic').value;
+            let pool = topic === 'all' ? [].concat(...Object.values(physicsData)) : physicsData[topic];
+            const target = pool[Math.floor(Math.random() * pool.length)];
+            setupSubjectQuiz('phys', 'physTopic', 'physSection', 'physQuestionText', 'physOptions', 'physFeedback', 'physNextBtn', 'phys_trainer_stats', () => target);
+        }
+
+        const biologyData = {
+            cell: [
+                { q: 'Органелла энергии?', a: 'Митохондрия', wrong: ['Рибосома', 'Ядро', 'Лизосома'] },
+                { q: 'Что в хлоропласте?', a: 'Хлорофилл', wrong: ['Митохондрии', 'Вакуоль', 'Цитоплазма'] },
+                { q: 'Где ДНК?', a: 'В ядре', wrong: ['В митохондриях', 'В цитоплазме', 'В вакуоли'] }
+            ],
+            human: [
+                { q: 'Сколько хромосом?', a: '46', wrong: ['23', '48', '44'] },
+                { q: 'Орган, очищающий кровь?', a: 'Печень', wrong: ['Желудок', 'Лёгкие', 'Сердце'] },
+                { q: 'Камер в сердце?', a: '4', wrong: ['2', '3', '5'] },
+                { q: 'Костей в теле?', a: '206', wrong: ['150', '300', '100'] }
+            ],
+            botany: [
+                { q: 'Создание веществ на свету?', a: 'Фотосинтез', wrong: ['Дыхание', 'Испарение', 'Опыление'] },
+                { q: 'Корни поглощают...', a: 'Воду и минералы', wrong: ['Воздух', 'Свет', 'Углекислый газ'] },
+                { q: 'Зелёный цвет даёт...', a: 'Хлорофилл', wrong: ['Каротин', 'Антоциан', 'Крахмал'] }
+            ],
+            zoology: [
+                { q: 'Ног у насекомых?', a: '6', wrong: ['4', '8', '10'] },
+                { q: 'Млекопитающее?', a: 'Дельфин', wrong: ['Акула', 'Крокодил', 'Орёл'] },
+                { q: 'Самое быстрое животное?', a: 'Гепард', wrong: ['Лев', 'Лошадь', 'Заяц'] },
+                { q: 'Самое большое животное?', a: 'Синий кит', wrong: ['Слон', 'Акула', 'Жираф'] }
+            ],
+            ecology: [
+                { q: 'Экосистема — это...', a: 'Сообщество организмов и среда', wrong: ['Только животные', 'Только растения', 'Только почва'] },
+                { q: 'Продуценты — это...', a: 'Растения', wrong: ['Животные', 'Бактерии', 'Грибы'] },
+                { q: 'Редуценты — это...', a: 'Разлагатели', wrong: ['Растения', 'Травоядные', 'Хищники'] }
+            ],
+            genetics: [
+                { q: 'Законы наследственности открыл...', a: 'Мендель', wrong: ['Дарвин', 'Ньютон', 'Пастер'] },
+                { q: 'Ген — это...', a: 'Участок ДНК', wrong: ['Клетка', 'Белок', 'Хромосома'] },
+                { q: 'Пар хромосом у человека?', a: '23', wrong: ['46', '22', '24'] }
+            ]
+        };
+        function generateBioQuestion() {
+            const topic = document.getElementById('bioTopic').value;
+            let pool = topic === 'all' ? [].concat(...Object.values(biologyData)) : biologyData[topic];
+            const target = pool[Math.floor(Math.random() * pool.length)];
+            setupSubjectQuiz('bio', 'bioTopic', 'bioSection', 'bioQuestionText', 'bioOptions', 'bioFeedback', 'bioNextBtn', 'bio_trainer_stats', () => target);
+        }
+
+        const historyData = {
+            dates: [
+                { q: 'Крещение Руси?', a: '988', wrong: ['862', '1147', '1380'] },
+                { q: 'Начало ВОВ?', a: '1941', wrong: ['1939', '1945', '1914'] },
+                { q: 'Конец ВОВ?', a: '1945', wrong: ['1944', '1946', '1918'] },
+                { q: 'Основание Москвы?', a: '1147', wrong: ['862', '988', '1240'] },
+                { q: 'Куликовская битва?', a: '1380', wrong: ['1240', '1480', '1612'] },
+                { q: 'Отмена крепостного права?', a: '1861', wrong: ['1812', '1905', '1917'] }
+            ],
+            figures: [
+                { q: 'Первый император России?', a: 'Пётр I', wrong: ['Екатерина II', 'Иван Грозный', 'Александр I'] },
+                { q: 'Полководец 1812 года?', a: 'Кутузов', wrong: ['Суворов', 'Жуков', 'Багратион'] },
+                { q: 'Открыл Америку?', a: 'Колумб', wrong: ['Магеллан', 'Васко да Гама', 'Кук'] },
+                { q: 'Первый президент РФ?', a: 'Ельцин', wrong: ['Горбачёв', 'Путин', 'Меншиков'] }
+            ],
+            ancient: [
+                { q: 'Где зародились Олимпийские игры?', a: 'Греция', wrong: ['Рим', 'Египет', 'Месопотамия'] },
+                { q: 'Храм Акрополя?', a: 'Парфенон', wrong: ['Колизей', 'Пантеон', 'Зиккурат'] },
+                { q: 'Кто построил пирамиды?', a: 'Египтяне', wrong: ['Римляне', 'Греки', 'Вавилоняне'] }
+            ],
+            medieval: [
+                { q: 'Начало Средневековья?', a: 'V век', wrong: ['I век', 'X век', 'XV век'] },
+                { q: 'Рыцарь — это...', a: 'Воин-всадник', wrong: ['Крестьянин', 'Купец', 'Монах'] },
+                { q: 'Крестовые походы — это...', a: 'Походы за Святую землю', wrong: ['Торговые пути', 'Паломничества', 'Завоевания'] }
+            ],
+            modern: [
+                { q: 'Начало Первой мировой?', a: '1914', wrong: ['1912', '1916', '1918'] },
+                { q: 'Французская революция?', a: '1789', wrong: ['1776', '1812', '1848'] },
+                { q: 'Теорию относительности создал...', a: 'Эйнштейн', wrong: ['Ньютон', 'Дарвин', 'Тесла'] }
+            ],
+            xx: [
+                { q: 'Начало Второй мировой?', a: '1939', wrong: ['1941', '1938', '1940'] },
+                { q: 'Первый человек в космосе?', a: 'Гагарин', wrong: ['Армстронг', 'Титов', 'Терешкова'] },
+                { q: 'Распад СССР?', a: '1991', wrong: ['1985', '1993', '2000'] },
+                { q: 'Падение Берлинской стены?', a: '1989', wrong: ['1985', '1991', '1993'] }
+            ]
+        };
+        function generateHistQuestion() {
+            const topic = document.getElementById('histTopic').value;
+            let pool = topic === 'all' ? [].concat(...Object.values(historyData)) : historyData[topic];
+            const target = pool[Math.floor(Math.random() * pool.length)];
+            setupSubjectQuiz('hist', 'histTopic', 'histSection', 'histQuestionText', 'histOptions', 'histFeedback', 'histNextBtn', 'hist_trainer_stats', () => target);
+        }
+
+        const englishData = {
+            vocab: [
+                { q: 'Переведи: "Apple"', a: 'Яблоко', wrong: ['Апельсин', 'Груша', 'Банан'] },
+                { q: '"Собака" по-английски?', a: 'Dog', wrong: ['Cat', 'Bird', 'Fish'] },
+                { q: 'Переведи: "House"', a: 'Дом', wrong: ['Машина', 'Школа', 'Книга'] },
+                { q: 'Переведи: "Book"', a: 'Книга', wrong: ['Тетрадь', 'Ручка', 'Стол'] },
+                { q: '"Кошка" по-английски?', a: 'Cat', wrong: ['Dog', 'Mouse', 'Bird'] }
+            ],
+            grammar: [
+                { q: 'I ___ a student.', a: 'am', wrong: ['is', 'are', 'be'] },
+                { q: 'He ___ got a car.', a: 'has', wrong: ['have', 'is', 'are'] },
+                { q: 'They ___ playing.', a: 'are', wrong: ['is', 'am', 'be'] },
+                { q: 'She ___ a doctor.', a: 'is', wrong: ['am', 'are', 'have'] }
+            ],
+            irregular: [
+                { q: 'Past Simple от "Go"?', a: 'Went', wrong: ['Goed', 'Gone', 'Going'] },
+                { q: 'Past Simple от "See"?', a: 'Saw', wrong: ['Seen', 'Seeed', 'Seeing'] },
+                { q: 'Past Simple от "Eat"?', a: 'Ate', wrong: ['Eated', 'Eaten', 'Eating'] },
+                { q: 'Past Simple от "Come"?', a: 'Came', wrong: ['Comed', 'Come', 'Coming'] }
+            ],
+            numbers: [
+                { q: '"Пять" по-английски?', a: 'Five', wrong: ['Four', 'Six', 'Three'] },
+                { q: 'Переведи: "Ten"', a: 'Десять', wrong: ['Девять', 'Восемь', 'Одиннадцать'] },
+                { q: '"Двадцать"?', a: 'Twenty', wrong: ['Twelve', 'Thirty', 'Two'] },
+                { q: 'Переведи: "Hundred"', a: 'Сто', wrong: ['Тысяча', 'Десять', 'Пятьдесят'] }
+            ],
+            colors: [
+                { q: '"Красный" по-английски?', a: 'Red', wrong: ['Blue', 'Green', 'Yellow'] },
+                { q: 'Переведи: "Blue"', a: 'Синий', wrong: ['Зелёный', 'Жёлтый', 'Чёрный'] },
+                { q: '"Зелёный"?', a: 'Green', wrong: ['Red', 'Blue', 'White'] },
+                { q: 'Переведи: "Black"', a: 'Чёрный', wrong: ['Белый', 'Серый', 'Коричневый'] }
+            ],
+            family: [
+                { q: '"Мама" по-английски?', a: 'Mother', wrong: ['Father', 'Sister', 'Brother'] },
+                { q: 'Переведи: "Father"', a: 'Отец', wrong: ['Мать', 'Брат', 'Сестра'] },
+                { q: '"Брат"?', a: 'Brother', wrong: ['Sister', 'Son', 'Uncle'] },
+                { q: 'Переведи: "Sister"', a: 'Сестра', wrong: ['Брат', 'Дочь', 'Тётя'] }
+            ],
+            food: [
+                { q: '"Хлеб" по-английски?', a: 'Bread', wrong: ['Milk', 'Cheese', 'Meat'] },
+                { q: 'Переведи: "Milk"', a: 'Молоко', wrong: ['Сок', 'Вода', 'Чай'] },
+                { q: '"Яблоко"?', a: 'Apple', wrong: ['Banana', 'Orange', 'Pear'] },
+                { q: 'Переведи: "Cheese"', a: 'Сыр', wrong: ['Масло', 'Хлеб', 'Мясо'] }
+            ],
+            tenses: [
+                { q: 'He ___ to school every day.', a: 'goes', wrong: ['go', 'going', 'went'] },
+                { q: 'Yesterday I ___ a book.', a: 'read', wrong: ['reads', 'reading', 'readed'] },
+                { q: 'She ___ now.', a: 'is sleeping', wrong: ['sleeps', 'sleep', 'slept'] },
+                { q: 'They ___ yesterday.', a: 'played', wrong: ['play', 'plays', 'playing'] }
+            ]
+        };
+        function generateEngQuestion() {
+            const topic = document.getElementById('engTopic').value;
+            let pool = topic === 'all' ? [].concat(...Object.values(englishData)) : englishData[topic];
+            const target = pool[Math.floor(Math.random() * pool.length)];
+            setupSubjectQuiz('eng', 'engTopic', 'engSection', 'engQuestionText', 'engOptions', 'engFeedback', 'engNextBtn', 'eng_trainer_stats', () => target);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProfile();
+            searchFormulas();
+            ['math', 'rus', 'chem', 'phys', 'bio', 'hist', 'eng'].forEach(sub => {
+                const stats = JSON.parse(localStorage.getItem(sub + '_trainer_stats') || '{"total":0,"correct":0,"streak":0}');
+                updateSubjectStatsUI(sub, stats);
+                updateProgressBar(sub, stats);
+            });
+            
+            // ВАЖНО: относительный путь для GitHub Pages
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js')
+                .then(registration => console.log('SW registered:', registration.scope))
+                .catch(error => console.log('SW registration failed:', error));
+            }
+        });
+    </script>
+</body>
+</html>
